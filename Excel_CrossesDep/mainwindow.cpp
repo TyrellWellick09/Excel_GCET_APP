@@ -123,7 +123,7 @@ void MainWindow::on_pbRead_clicked()
     qDebug() << "Archivo o ruta ingresada: " << filePath;
 
 //    // Cargar el archivo Excel
-//    QXlsx::Document xlsx(filePath);
+//    QXlsx::Document originDocument(filePath);
 
 //    if (xlsx.load())
 //    {

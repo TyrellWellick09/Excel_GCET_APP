@@ -17,21 +17,19 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pbSearch_clicked();
-    void on_pbRead_clicked();
-    void on_pbSearchExp_clicked();
+    void on_buttonSearchFile_clicked();
+    void on_buttonRead_clicked();
+    void on_buttonSearchExport_clicked();
 
 
-
+//Functions prototipes private
 private:
     QString openExcelFile();
     QString openOutputDirectory();
-    int firstColumn;
-    int lastColumn;
-    QStringList columnNames;
-    QStringList selectedColumnNames;
-    QString selectedColumn;
-    QString valueRange;
+
+//Variables private
+private:
+    int value01;
 
 
 private:
