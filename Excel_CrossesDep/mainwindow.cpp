@@ -8,14 +8,13 @@
 #include <QTableWidget>
 #include <vector>
 
-#include "xlsxabstractsheet.h"
 #include "xlsxdocument.h"
 #include "xlsxchartsheet.h"
 #include "xlsxcellrange.h"
 #include "xlsxchart.h"
 #include "xlsxrichstring.h"
 #include "xlsxworkbook.h"
-using namespace QXlsx;
+//using namespace QXlsx;
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -23,9 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-
-
 }
 
 MainWindow::~MainWindow()
@@ -34,74 +30,34 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::on_pbSearch_clicked()
+void MainWindow::on_button_search_file_clicked()
 {
     // Optener la ruta del archivo en el QLineEdit
-    QString filePath = openExcelFile();
-    // Mostrar la ruta del archivo en el QLineEdit
-    ui->lineEdit->setText(filePath);
-    qDebug() << "Archivo seleccionado: " << filePath;
-
-
-}
-
-QString MainWindow::openExcelFile()
-{
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setNameFilter("Archivos Excel (*.xlsx *.xls)");
-
-    if (dialog.exec())
-    {
-        QStringList selectedFiles = dialog.selectedFiles();
-        if (!selectedFiles.isEmpty())
-        {
-            return selectedFiles.first();
-        }
+    file_path = open_excel_file();
+    // Verificar que no este vacio
+    if (!file_path.isEmpty()) {
+        ui->lineEdit->setText(file_path);
+        qDebug() << "Archivo seleccionado: " << file_path;
     }
-
-    return "";
 }
 
-void MainWindow::on_pbSearchExp_clicked()
+void MainWindow::on_button_search_export_clicked()
 {
-    QString directoryPath = openOutputDirectory();
-    if (!directoryPath.isEmpty()) {
+    export_path = open_export_path();
+    if (!export_path.isEmpty()) {
         QLineEdit *lineEditExport = findChild<QLineEdit*>("lineEditExport");
         if (lineEditExport) {
-            lineEditExport->setText(directoryPath);
+            lineEditExport->setText(export_path);
         }
     }
 }
 
-QString MainWindow::openOutputDirectory()
+
+void MainWindow::on_button_read_clicked()
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setWindowTitle("Seleccionar Carpeta de Salida");
-
-    if (dialog.exec())
-    {
-        QStringList selectedDirectories = dialog.selectedFiles();
-        if (!selectedDirectories.isEmpty())
-        {
-            return selectedDirectories.first();
-        }
-    }
-
-    return "";
-}
-
-
-
-
-
-void MainWindow::on_pbRead_clicked()
-{
-    QString filePath = ui->lineEdit->text(); // Obtener la ruta del QLineEdit
 
     // Verificar si la ruta del archivo existe
-    if (!QFile::exists(filePath))
+    if (!QFile::exists(file_path))
     {
         // Mostrar un mensaje de error
         QMessageBox::critical(this, "Error", "La ruta del archivo no existe.");
@@ -109,26 +65,23 @@ void MainWindow::on_pbRead_clicked()
     }
 
     // Obtener solo el nombre del archivo
-    QString fileName = QFileInfo(filePath).fileName();
+    QString fileName = QFileInfo(file_path).fileName();
 
     // Construir el texto completo a mostrar en el QLabel
     QString labelText = QString("File selected: %1").arg(fileName);
 
-
-    // Mostrar el nombre del archivo en el QLabel
-    ui->labelNameFile->setText(labelText);
+    qDebug() << "Archivo o ruta ingresada: " << file_path;
 
 
 
-    qDebug() << "Archivo o ruta ingresada: " << filePath;
 
-//    // Cargar el archivo Excel
-//    QXlsx::Document originDocument(filePath);
+    // Cargar el archivo Excel
+    QXlsx::Document origin_document(file_path);
 
-//    if (xlsx.load())
-//    {
-//        // Mostrar el nombre del archivo en el QLabel
-//        ui->labelNameFile->setText(labelText);
+    if (origin_document.load())
+    {
+        // Mostrar el nombre del archivo en el QLabel
+        ui->label_file_name->setText(labelText);
 
 
 
@@ -191,21 +144,55 @@ void MainWindow::on_pbRead_clicked()
 //        {
 //            qDebug() << "No se encontraron hojas de trabajo en el archivo.";
 //        }
-//    }
+    }
 
 
 
-//    else
-//    {
-//        qDebug() << "Error loading Excel file.";
-//    }
+    else
+    {
+        qDebug() << "Error loading Excel file.";
+    }
 
 
 
 }
 
 
+QString MainWindow::open_excel_file()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilter("Archivos Excel (*.xlsx *.xls)");
 
+    if (dialog.exec())
+    {
+        QStringList selectedFiles = dialog.selectedFiles();
+        if (!selectedFiles.isEmpty())
+        {
+            return selectedFiles.first();
+        }
+    }
+
+    return "";
+}
+
+QString MainWindow::open_export_path()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setWindowTitle("Seleccionar Carpeta de Salida");
+
+    if (dialog.exec())
+    {
+        QStringList selectedDirectories = dialog.selectedFiles();
+        if (!selectedDirectories.isEmpty())
+        {
+            return selectedDirectories.first();
+        }
+    }
+
+    return "";
+}
 
 
 

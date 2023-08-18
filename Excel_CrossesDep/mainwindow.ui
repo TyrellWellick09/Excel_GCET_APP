@@ -9,18 +9,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1121</width>
-    <height>765</height>
+    <width>1215</width>
+    <height>810</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>EXCEL DEPURATOR</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="labelTitle">
+   <widget class="QLabel" name="label_select_file">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>440</x>
       <y>10</y>
       <width>271</width>
       <height>31</height>
@@ -35,10 +35,10 @@
      <string>PLEASE SELECT THE EXCEL FILE</string>
     </property>
    </widget>
-   <widget class="QLabel" name="labelNameFile">
+   <widget class="QLabel" name="label_file_name">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>450</x>
       <y>150</y>
       <width>301</width>
       <height>20</height>
@@ -48,10 +48,10 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="labelTitleExport">
+   <widget class="QLabel" name="label_select_path">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>380</x>
       <y>180</y>
       <width>411</width>
       <height>31</height>
@@ -69,42 +69,27 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>230</x>
       <y>50</y>
-      <width>601</width>
+      <width>671</width>
       <height>81</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="labelPath">
-       <property name="font">
-        <font>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>PATH:</string>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QLineEdit" name="lineEdit"/>
      </item>
      <item>
-      <widget class="QPushButton" name="pbSearch">
+      <widget class="QPushButton" name="button_search_file">
        <property name="text">
-        <string>SEARCH</string>
+        <string>Search</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pbRead">
+      <widget class="QPushButton" name="button_read">
        <property name="text">
-        <string>READ</string>
+        <string>Read</string>
        </property>
       </widget>
      </item>
@@ -113,28 +98,13 @@
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>230</x>
       <y>220</y>
-      <width>601</width>
+      <width>671</width>
       <height>81</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="labelPath_2">
-       <property name="font">
-        <font>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>PATH:</string>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QLineEdit" name="lineEditExport"/>
      </item>
@@ -155,13 +125,88 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pbSearchExp">
+      <widget class="QPushButton" name="button_search_export">
        <property name="text">
-        <string>SEARCH</string>
+        <string>Search</string>
        </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QTableView" name="tableview_columns">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>340</y>
+      <width>1141</width>
+      <height>361</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_load_config">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>740</y>
+      <width>93</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Config</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_save_config">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>740</y>
+      <width>93</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save Config</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_reset">
+    <property name="geometry">
+     <rect>
+      <x>970</x>
+      <y>730</y>
+      <width>93</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Reset</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_export">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>730</y>
+      <width>93</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Export</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_table_description">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>310</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Table description</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
