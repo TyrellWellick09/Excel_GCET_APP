@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "xlsxdocument.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -16,6 +17,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+
 private slots:
     void on_button_search_file_clicked();
     void on_button_read_clicked();
@@ -23,14 +25,20 @@ private slots:
 
 
 //Functions prototipes private
+    void on_button_export_clicked();
+
 private:
     QString open_excel_file();
     QString open_export_path();
+    void get_data(QXlsx::Document &document);
+    void get_index_selected_columns();
+
 
 //Variables private
 private:
     QString file_path;
     QString export_path;
+    QVector<QVector<QString>> cellValues;
 
 
 private:

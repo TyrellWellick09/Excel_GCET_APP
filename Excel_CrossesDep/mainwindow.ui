@@ -138,9 +138,24 @@
      <rect>
       <x>30</x>
       <y>340</y>
-      <width>1141</width>
-      <height>361</height>
+      <width>1011</width>
+      <height>321</height>
      </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="tabletTracking">
+     <bool>true</bool>
+    </property>
+    <property name="alternatingRowColors">
+     <bool>true</bool>
+    </property>
+    <property name="showGrid">
+     <bool>true</bool>
+    </property>
+    <property name="sortingEnabled">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="button_load_config">
