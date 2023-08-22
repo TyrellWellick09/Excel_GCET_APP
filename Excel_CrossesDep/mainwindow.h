@@ -38,7 +38,8 @@ private:
 private:
     QString file_path;
     QString export_path;
-    QVector<QVector<QString>> cellValues;
+    QVector<QVector<QString>> cell_values;
+    QVector<int> selected_column_index;
 
 
 private:

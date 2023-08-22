@@ -182,15 +182,15 @@ void MainWindow::get_data(QXlsx::Document &document){
                 rowData.push_back(""); // Celda vacía
             }
         }
-        cellValues.push_back(rowData);
+        cell_values.push_back(rowData);
     }
 
     // Configurar el modelo de datos del QTableView
-    QStandardItemModel *model = new QStandardItemModel(cellValues.size(), cellValues[0].size());
-    for (int row = 0; row < cellValues.size(); ++row) {
-        for (int column = 0; column < cellValues[row].size(); ++column) {
+    QStandardItemModel *model = new QStandardItemModel(cell_values.size(), cell_values[0].size());
+    for (int row = 0; row < cell_values.size(); ++row) {
+        for (int column = 0; column < cell_values[row].size(); ++column) {
             QModelIndex index = model->index(row, column);
-            model->setData(index, cellValues[row][column]);
+            model->setData(index, cell_values[row][column]);
         }
     }
 
@@ -226,58 +226,65 @@ void MainWindow::get_data(QXlsx::Document &document){
 
 void MainWindow::on_button_export_clicked()
 {
+    uint8_t startRow = 5;
+    uint8_t startColumn = 5;
     get_index_selected_columns();
 
 
 
-    QVector<QVector<QString>> cellValues; // Tu vector bidimensional con los valores
+    QVector<QVector<QString>> cell_values_export; // Tu vector bidimensional con los valores
 
-    // Obtener las columnas seleccionadas
-    QItemSelectionModel *selectionModel = ui->tableview_columns->selectionModel();
-    if (!selectionModel) {
-        return; // Salir si no hay modelo de selección
+
+
+
+    // Llenar cell_values_export con los valores de cell_values
+    for (int i = 0; i < cell_values.size(); ++i) {
+        QVector<QString> fila_export;
+        for (int j : selected_column_index) {
+            fila_export.append(cell_values[i][j]);
+        }
+        cell_values_export.append(fila_export);
     }
 
-    QModelIndexList selectedColumns = selectionModel->selectedColumns();
 
+    
     // Crear un nuevo archivo Excel utilizando QXlsx
-    QXlsx::Document newDocument;
+    QXlsx::Document new_document;
 
-    // Iterar a través de todas las filas
-    for (int row = 0; row < cellValues.size(); ++row) {
-        int newRow = row + 1; // Las filas en QXlsx se indexan desde 1
-        int newColumn = 1;    // El primer valor de la fila
 
-        // Iterar a través de todas las columnas
-        for (int column = 0; column < cellValues[row].size(); ++column) {
-            QString cellValue = cellValues[row][column];
 
-            bool columnIsSelected = false;
-            foreach (const QModelIndex &selectedIndex, selectedColumns) {
-                if (selectedIndex.column() == column) {
-                    columnIsSelected = true;
-                    break;
-                }
-            }
 
-            if (columnIsSelected) {
-                // La columna está seleccionada, así que no hagas nada en esta celda
-            } else {
-                // La columna no está seleccionada, así que copia el valor al nuevo archivo y modelo
-                newDocument.write(newRow, newColumn, cellValue);
-            }
-
-            newColumn++; // Mover a la siguiente columna en el archivo
+    for (int i = 0; i < cell_values_export.size(); ++i) {
+        const QVector<QString> &row = cell_values_export[i];
+        for (int j = 0; j < row.size(); ++j) {
+            QString value = row[j];
+            new_document.write(startRow + i, startColumn + j, value);
         }
     }
 
+
+
+
     // Guardar el nuevo archivo en la ubicación deseada
     QString savePath = export_path + "/nuevo_archivo.xlsx";
-    newDocument.saveAs(savePath);
+    new_document.saveAs(savePath);
+
+    // Verificar si la variable está vacía
+    if (file_path.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "The file path is empty");
+    } else if (export_path.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "The export path is empty");
+    }
 
 
-    // Imprimir mensaje de éxito en la consola
-    qDebug() << "Nuevo archivo creado y columnas seleccionadas vaciadas.";
+
+
+
+
+
+
+
+
 
 
 
@@ -286,18 +293,49 @@ void MainWindow::on_button_export_clicked()
 
 void MainWindow::get_index_selected_columns(){
 
+    selected_column_index.clear();
+
     QItemSelectionModel *selectionModel = ui->tableview_columns->selectionModel();
     QAbstractItemModel *model = ui->tableview_columns->model();
 
     if (selectionModel && model) {
         QModelIndexList selectedColumns = selectionModel->selectedColumns();
 
-        QVector<int> selectedColumnIndices;
         for (const QModelIndex &index : selectedColumns) {
-            selectedColumnIndices.append(index.column());
+            selected_column_index.append(index.column());
         }
 
-        qDebug() << "Los indices de las columnas seleccionados son:"<< selectedColumnIndices;
+        qDebug() << "Los indices de las columnas seleccionados son:"<< selected_column_index;
     }
 
 }
+
+
+
+//// Iterar a través de todas las filas
+//for (int row = 0; row < cell_values.size(); ++row) {
+//    int newRow = row + 1; // Las filas en QXlsx se indexan desde 1
+//    int newColumn = 1;    // El primer valor de la fila
+
+//    // Iterar a través de todas las columnas
+//    for (int column = 0; column < cell_values[row].size(); ++column) {
+//        QString cellValue = cell_values[row][column];
+
+//        bool columnIsSelected = false;
+//        foreach (const QModelIndex &selectedIndex, selectedColumns) {
+//            if (selectedIndex.column() == column) {
+//                columnIsSelected = true;
+//                break;
+//            }
+//        }
+
+//        if (columnIsSelected) {
+//            // La columna está seleccionada, así que no hagas nada en esta celda
+//        } else {
+//            // La columna no está seleccionada, así que copia el valor al nuevo archivo y modelo
+//            newDocument.write(newRow, newColumn, cellValue);
+//        }
+
+//        newColumn++; // Mover a la siguiente columna en el archivo
+//    }
+//}
