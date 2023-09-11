@@ -20,9 +20,9 @@
    <widget class="QLabel" name="label_select_file">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>320</x>
       <y>10</y>
-      <width>281</width>
+      <width>511</width>
       <height>31</height>
      </rect>
     </property>
@@ -32,7 +32,7 @@
      </font>
     </property>
     <property name="text">
-     <string>PLEASE SELECT THE EXCEL FILES</string>
+     <string>PLEASE SELECT THE FOLDER THAT CONTAINS THE BOMS</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_file_name">

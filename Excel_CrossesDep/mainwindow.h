@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include "xlsxdocument.h"
+#include <QThread>
+
 
 
 QT_BEGIN_NAMESPACE
@@ -28,7 +30,7 @@ private slots:
     void on_button_export_clicked();
 
 private:
-    QString open_excel_file();
+    QStringList open_excel_files();
     QString open_export_path();
     void get_data(QXlsx::Document &document);
     void get_index_selected_columns();
@@ -36,7 +38,7 @@ private:
 
 //Variables private
 private:
-    QString file_path;
+    QStringList  file_paths;
     QString export_path;
     QVector<QVector<QString>> cell_values;
     QVector<int> selected_column_index;

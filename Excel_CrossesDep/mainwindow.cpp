@@ -34,13 +34,40 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_button_search_file_clicked()
 {
-    // Optener la ruta del archivo en el QLineEdit
-    file_path = open_excel_file();
-    // Verificar que no este vacio
-    if (!file_path.isEmpty()) {
-        ui->lineEdit->setText(file_path);
-        qDebug() << "Archivo seleccionado: " << file_path;
+    // Obtener la lista de archivos en la carpeta seleccionada
+    QStringList fileList = open_excel_files();
+
+    // Verificar que no esté vacía
+    if (!fileList.isEmpty()) {
+        // Imprimir la lista de archivos por consola
+        qDebug() << "Archivos encontrados en la carpeta:";
+        for (const QString &file_path : fileList) {
+            qDebug() << file_path;
+        }
     }
+}
+
+QStringList MainWindow::open_excel_files()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory); // Cambiar el modo a Directory para seleccionar una carpeta
+    dialog.setOption(QFileDialog::ShowDirsOnly, true); // Mostrar solo carpetas
+
+    QString selectedFolder;
+    if (dialog.exec())
+    {
+        selectedFolder = dialog.selectedFiles().first();
+        QDir directory(selectedFolder);
+        QStringList fileFilters;
+        fileFilters << "*.xlsx" << "*.xls"; // Agrega aquí las extensiones de archivo que deseas procesar
+        QStringList fileList = directory.entryList(fileFilters, QDir::Files);
+        for (QString &file : fileList) {
+            file = directory.absoluteFilePath(file); // Obtener la ruta completa de cada archivo
+        }
+        return fileList;
+    }
+
+    return QStringList(); // Devolver una lista vacía si no se seleccionó ninguna carpeta
 }
 
 void MainWindow::on_button_search_export_clicked()
@@ -58,65 +85,49 @@ void MainWindow::on_button_search_export_clicked()
 void MainWindow::on_button_read_clicked()
 {
 
-    // Verificar si la ruta del archivo existe
-    if (!QFile::exists(file_path))
-    {
-        // Mostrar un mensaje de error
-        QMessageBox::critical(this, "Error", "La ruta del archivo no existe.");
-        return; // Salir de la función sin realizar más operaciones
-    }
+//    // Verificar si la ruta del archivo existe
+//    if (!QFile::exists(file_paths))
+//    {
+//        // Mostrar un mensaje de error
+//        QMessageBox::critical(this, "Error", "La ruta del archivo no existe.");
+//        return; // Salir de la función sin realizar más operaciones
+//    }
 
-    // Obtener solo el nombre del archivo
-    QString fileName = QFileInfo(file_path).fileName();
+//    // Obtener solo el nombre del archivo
+//    QString fileName = QFileInfo(file_paths).fileName();
 
-    // Construir el texto completo a mostrar en el QLabel
-    QString labelText = QString("File selected: %1").arg(fileName);
+//    // Construir el texto completo a mostrar en el QLabel
+//    QString labelText = QString("File selected: %1").arg(fileName);
 
-    qDebug() << "Archivo o ruta ingresada: " << file_path;
-
-
-
-
-    // Cargar el archivo Excel
-    QXlsx::Document origin_document(file_path);
-
-    if (origin_document.load())
-    {
-        // Mostrar el nombre del archivo en el QLabel
-        ui->label_file_name->setText(labelText);
-
-        get_data(origin_document);
-
-    }
-    else
-    {
-        qDebug() << "Error loading Excel file.";
-    }
+//    qDebug() << "Archivo o ruta ingresada: " << file_paths;
 
 
 
 
+//    // Cargar el archivo Excel
+//    QXlsx::Document origin_document(file_paths);
+
+//    if (origin_document.load())
+//    {
+//        // Mostrar el nombre del archivo en el QLabel
+//        ui->label_file_name->setText(labelText);
+
+//        get_data(origin_document);
+
+//    }
+//    else
+//    {
+//        qDebug() << "Error loading Excel file.";
+//    }
 
 }
 
 
-QString MainWindow::open_excel_file()
-{
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setNameFilter("Archivos Excel (*.xlsx *.xls)");
 
-    if (dialog.exec())
-    {
-        QStringList selectedFiles = dialog.selectedFiles();
-        if (!selectedFiles.isEmpty())
-        {
-            return selectedFiles.first();
-        }
-    }
 
-    return "";
-}
+
+
+
 
 QString MainWindow::open_export_path()
 {
@@ -211,7 +222,7 @@ void MainWindow::get_data(QXlsx::Document &document){
 
 
     // Asignar el modelo al QTableView
-    ui->tableview_columns->setModel(model);
+    //ui->tableview_columns->setModel(model);
 
 
 
@@ -228,14 +239,9 @@ void MainWindow::on_button_export_clicked()
 {
     uint8_t startRow = 5;
     uint8_t startColumn = 5;
-    get_index_selected_columns();
-
-
+    //get_index_selected_columns();
 
     QVector<QVector<QString>> cell_values_export; // Tu vector bidimensional con los valores
-
-
-
 
     // Llenar cell_values_export con los valores de cell_values
     for (int i = 0; i < cell_values.size(); ++i) {
@@ -270,72 +276,11 @@ void MainWindow::on_button_export_clicked()
     new_document.saveAs(savePath);
 
     // Verificar si la variable está vacía
-    if (file_path.isEmpty()) {
+    if (file_paths.isEmpty()) {
         QMessageBox::warning(this, "Warning", "The file path is empty");
     } else if (export_path.isEmpty()) {
         QMessageBox::warning(this, "Warning", "The export path is empty");
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-
-void MainWindow::get_index_selected_columns(){
-
-    selected_column_index.clear();
-
-    QItemSelectionModel *selectionModel = ui->tableview_columns->selectionModel();
-    QAbstractItemModel *model = ui->tableview_columns->model();
-
-    if (selectionModel && model) {
-        QModelIndexList selectedColumns = selectionModel->selectedColumns();
-
-        for (const QModelIndex &index : selectedColumns) {
-            selected_column_index.append(index.column());
-        }
-
-        qDebug() << "Los indices de las columnas seleccionados son:"<< selected_column_index;
-    }
-
 }
 
 
-
-//// Iterar a través de todas las filas
-//for (int row = 0; row < cell_values.size(); ++row) {
-//    int newRow = row + 1; // Las filas en QXlsx se indexan desde 1
-//    int newColumn = 1;    // El primer valor de la fila
-
-//    // Iterar a través de todas las columnas
-//    for (int column = 0; column < cell_values[row].size(); ++column) {
-//        QString cellValue = cell_values[row][column];
-
-//        bool columnIsSelected = false;
-//        foreach (const QModelIndex &selectedIndex, selectedColumns) {
-//            if (selectedIndex.column() == column) {
-//                columnIsSelected = true;
-//                break;
-//            }
-//        }
-
-//        if (columnIsSelected) {
-//            // La columna está seleccionada, así que no hagas nada en esta celda
-//        } else {
-//            // La columna no está seleccionada, así que copia el valor al nuevo archivo y modelo
-//            newDocument.write(newRow, newColumn, cellValue);
-//        }
-
-//        newColumn++; // Mover a la siguiente columna en el archivo
-//    }
-//}
