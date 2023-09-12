@@ -151,7 +151,7 @@ void MainWindow::on_button_read_clicked()
     for (const QString &path : files_paths_list)
     {
         // Iniciar la carga del documento en segundo plano
-        QtConcurrent::run(this, &MainWindow::loadDocumentInBackground, path);
+        QtConcurrent::run(&MainWindow::loadDocumentInBackground, path);
     }
 
 
