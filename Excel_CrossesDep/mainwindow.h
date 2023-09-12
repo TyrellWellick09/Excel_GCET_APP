@@ -3,8 +3,9 @@
 
 #include <QMainWindow>
 #include "xlsxdocument.h"
-#include <QThread>
-
+#include <QThreadPool>
+#include <QtConcurrent>
+#include <QFuture>
 
 
 QT_BEGIN_NAMESPACE
@@ -19,9 +20,16 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void documentLoaded(QXlsx::Document *document);
+
+
+public slots:
+    void loadDocumentInBackground(const QString &path);
+
 
 private slots:
-    void on_button_search_file_clicked();
+    void on_button_search_files_clicked();
     void on_button_read_clicked();
     void on_button_search_export_clicked();
 
@@ -38,10 +46,12 @@ private:
 
 //Variables private
 private:
-    QStringList  file_paths;
+    QStringList  files_paths_list;
     QString export_path;
     QVector<QVector<QString>> cell_values;
     QVector<int> selected_column_index;
+    QList<QXlsx::Document*> loaded_documents;
+
 
 
 private:

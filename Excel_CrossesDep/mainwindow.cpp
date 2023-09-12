@@ -24,6 +24,18 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // Read only to the texEdit
+    ui->textEdit_names_files->setReadOnly(true);
+    // Activate scroll bar if is neccesary
+    ui->textEdit_names_files->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    ui->textEdit_names_files->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    // Set invisible the textEdit
+    ui->textEdit_names_files->setVisible(false);
+    // Set invisible the label
+    ui->label_files_selected->setVisible(false);
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -32,43 +44,165 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::on_button_search_file_clicked()
+void MainWindow::on_button_search_files_clicked()
 {
-    // Obtener la lista de archivos en la carpeta seleccionada
-    QStringList fileList = open_excel_files();
+    // Get the list of files in the selected folder
+    files_paths_list = open_excel_files();
 
-    // Verificar que no esté vacía
-    if (!fileList.isEmpty()) {
-        // Imprimir la lista de archivos por consola
-        qDebug() << "Archivos encontrados en la carpeta:";
-        for (const QString &file_path : fileList) {
+    // Check if it's not empty
+    if (!files_paths_list.isEmpty()) {
+        // Print the list of files to the console
+        qDebug() << "Files found in the folder:";
+        for (const QString &file_path : files_paths_list) {
             qDebug() << file_path;
         }
     }
+    else{
+        qDebug() << "No files was selected";
+    }
+
 }
 
 QStringList MainWindow::open_excel_files()
 {
+    // Open a file dialog window
     QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory); // Cambiar el modo a Directory para seleccionar una carpeta
-    dialog.setOption(QFileDialog::ShowDirsOnly, true); // Mostrar solo carpetas
+    dialog.setFileMode(QFileDialog::Directory); // Change the mode to Directory to select a folder
+    dialog.setOption(QFileDialog::ShowDirsOnly, true); // Show folders only
 
-    QString selectedFolder;
+    QString selectedFolder; // Variable to store the folder path
     if (dialog.exec())
     {
-        selectedFolder = dialog.selectedFiles().first();
+        QStringList selected_files = dialog.selectedFiles(); // Get the path of the folder
+        if (!selected_files.isEmpty())
+        {
+            selectedFolder = selected_files.first(); // Store in selectedFiles
+            // Set the folder path to the QLineEdit
+            ui->lineEdit->setText(selectedFolder);
+        }
         QDir directory(selectedFolder);
         QStringList fileFilters;
-        fileFilters << "*.xlsx" << "*.xls"; // Agrega aquí las extensiones de archivo que deseas procesar
-        QStringList fileList = directory.entryList(fileFilters, QDir::Files);
-        for (QString &file : fileList) {
-            file = directory.absoluteFilePath(file); // Obtener la ruta completa de cada archivo
+        fileFilters << "*.xlsx" << "*.xls"; // Add the file extensions you want to process here
+        QStringList files_list = directory.entryList(fileFilters, QDir::Files);
+        for (QString &file : files_list) {
+            file = directory.absoluteFilePath(file); // Get the full path of each file and stor in files_list
         }
-        return fileList;
+        return files_list;
     }
 
-    return QStringList(); // Devolver una lista vacía si no se seleccionó ninguna carpeta
+
+    return QStringList(); // Return an empty list if no folder was selected
+
 }
+
+
+
+void MainWindow::on_button_read_clicked()
+{
+    QString files_names;
+
+    for(const QString &file :files_paths_list ){
+        // Get the names of the files
+        QString file_path = QFileInfo(file).fileName();
+
+        // Separate by comma
+        if(!files_names.isEmpty()){
+            files_names += '\n';
+        }
+
+        // Add to the list
+        files_names += file_path;
+    }
+
+    // Set visible the textEdit
+    ui->textEdit_names_files->setVisible(true);
+
+    // Set visible the label
+    ui->label_files_selected->setVisible(true);
+
+    // Add the names to the label
+    ui->textEdit_names_files->setPlainText(files_names);
+
+//    int document_number = 1;
+
+//    for(const QString &path : files_paths_list){
+
+//        if (QFile::exists(path)){
+
+//            // Charge documents from each path
+//            QXlsx::Document* document = new QXlsx::Document(path);
+//            if(document->load()){
+//                // Add each document to the list
+//                loaded_documents.append(document);
+//                qDebug() << "File number " << document_number;
+//                document_number += 1;
+
+//            }
+//            else
+//            {
+//                qDebug() << "Error al cargar el archivo: " << path;
+//            }
+//        }
+//    }
+
+
+    QThreadPool *threadPool = QThreadPool::globalInstance(); // Obtener el pool de hilos global
+
+    for (const QString &path : files_paths_list)
+    {
+        // Iniciar la carga del documento en segundo plano
+        QtConcurrent::run(this, &MainWindow::loadDocumentInBackground, path);
+    }
+
+
+
+
+
+
+
+
+    // Free memory for the documents loaded on the heap
+    foreach (QXlsx::Document* document, loaded_documents)
+    {
+        delete document;
+    }
+
+    // Clear the list of documents (optional)
+    loaded_documents.clear();
+
+
+
+}
+
+void MainWindow::loadDocumentInBackground(const QString &path)
+{
+    if (QFile::exists(path))
+    {
+        QXlsx::Document *document = new QXlsx::Document(path);
+        if (document->load())
+        {
+            emit documentLoaded(document); // Emitir señal para manejar el documento cargado
+        }
+        else
+        {
+            qDebug() << "Error al cargar el archivo: " << path;
+            delete document;
+        }
+    }
+    else
+    {
+        qDebug() << "La ruta del archivo no existe: " << path;
+    }
+}
+
+
+
+
+
+
+
+
+
 
 void MainWindow::on_button_search_export_clicked()
 {
@@ -80,50 +214,6 @@ void MainWindow::on_button_search_export_clicked()
         }
     }
 }
-
-
-void MainWindow::on_button_read_clicked()
-{
-
-//    // Verificar si la ruta del archivo existe
-//    if (!QFile::exists(file_paths))
-//    {
-//        // Mostrar un mensaje de error
-//        QMessageBox::critical(this, "Error", "La ruta del archivo no existe.");
-//        return; // Salir de la función sin realizar más operaciones
-//    }
-
-//    // Obtener solo el nombre del archivo
-//    QString fileName = QFileInfo(file_paths).fileName();
-
-//    // Construir el texto completo a mostrar en el QLabel
-//    QString labelText = QString("File selected: %1").arg(fileName);
-
-//    qDebug() << "Archivo o ruta ingresada: " << file_paths;
-
-
-
-
-//    // Cargar el archivo Excel
-//    QXlsx::Document origin_document(file_paths);
-
-//    if (origin_document.load())
-//    {
-//        // Mostrar el nombre del archivo en el QLabel
-//        ui->label_file_name->setText(labelText);
-
-//        get_data(origin_document);
-
-//    }
-//    else
-//    {
-//        qDebug() << "Error loading Excel file.";
-//    }
-
-}
-
-
-
 
 
 
@@ -173,12 +263,6 @@ void MainWindow::get_data(QXlsx::Document &document){
 //    qDebug() << "La ultima columna es:" << document.dimension().lastColumn();
 //    qDebug() << "La primera fila es:" << document.dimension().firstRow();
 //    qDebug() << "La ultima fila es:" << document.dimension().lastRow();
-
-
-
-
-
-
 
 
 
@@ -271,16 +355,16 @@ void MainWindow::on_button_export_clicked()
 
 
 
-    // Guardar el nuevo archivo en la ubicación deseada
-    QString savePath = export_path + "/nuevo_archivo.xlsx";
-    new_document.saveAs(savePath);
+//    // Guardar el nuevo archivo en la ubicación deseada
+//    QString savePath = export_path + "/nuevo_archivo.xlsx";
+//    new_document.saveAs(savePath);
 
-    // Verificar si la variable está vacía
-    if (file_paths.isEmpty()) {
-        QMessageBox::warning(this, "Warning", "The file path is empty");
-    } else if (export_path.isEmpty()) {
-        QMessageBox::warning(this, "Warning", "The export path is empty");
-    }
+//    // Verificar si la variable está vacía
+//    if (file_paths.isEmpty()) {
+//        QMessageBox::warning(this, "Warning", "The file path is empty");
+//    } else if (export_path.isEmpty()) {
+//        QMessageBox::warning(this, "Warning", "The export path is empty");
+//    }
 }
 
 
