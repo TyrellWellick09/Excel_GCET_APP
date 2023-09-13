@@ -55,13 +55,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="button_read">
-       <property name="text">
-        <string>Read</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="QPushButton" name="button_export">
@@ -103,9 +96,9 @@
    <widget class="QLabel" name="label_files_selected_drms">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>140</x>
       <y>130</y>
-      <width>111</width>
+      <width>231</width>
       <height>20</height>
      </rect>
     </property>

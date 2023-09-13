@@ -9,12 +9,7 @@
 #include <vector>
 
 #include "xlsxdocument.h"
-#include "xlsxchartsheet.h"
 #include "xlsxcellrange.h"
-#include "xlsxchart.h"
-#include "xlsxrichstring.h"
-#include "xlsxworkbook.h"
-//using namespace QXlsx;
 #include <QStandardItemModel>
 
 
@@ -46,6 +41,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_button_search_files_clicked()
 {
+    QString files_names;
+
     // Get the list of files in the selected folder
     files_paths_list = open_excel_files();
 
@@ -60,6 +57,76 @@ void MainWindow::on_button_search_files_clicked()
     else{
         qDebug() << "No files was selected";
     }
+
+    for(const QString &file :files_paths_list ){
+        // Get the names of the files
+        QString file_path = QFileInfo(file).fileName();
+
+        // Separate by comma
+        if(!files_names.isEmpty()){
+            files_names += '\n';
+        }
+
+        // Add to the list
+        files_names += file_path;
+    }
+
+    // Set visible the textEdit
+    ui->textEdit_names_files->setVisible(true);
+
+    // Set visible the label
+    ui->label_files_selected->setVisible(true);
+
+    // Add the names to the label
+    ui->textEdit_names_files->setPlainText(files_names);
+
+    //    int document_number = 1;
+
+    //    for(const QString &path : files_paths_list){
+
+    //        if (QFile::exists(path)){
+
+    //            // Charge documents from each path
+    //            QXlsx::Document* document = new QXlsx::Document(path);
+    //            if(document->load()){
+    //                // Add each document to the list
+    //                loaded_documents.append(document);
+    //                qDebug() << "File number " << document_number;
+    //                document_number += 1;
+
+    //            }
+    //            else
+    //            {
+    //                qDebug() << "Error al cargar el archivo: " << path;
+    //            }
+    //        }
+    //    }
+
+
+    TaskChargeDocuments *X = new TaskChargeDocuments('X', files_paths_list, &loaded_documents);
+    QThreadPool::globalInstance()->start(X, QThread::NormalPriority);
+
+    qDebug() << "Finish the procces";
+
+
+
+
+
+
+
+
+
+
+
+    //    // Free memory for the documents loaded on the heap
+    //    foreach (QXlsx::Document* document, loaded_documents)
+    //    {
+    //        delete document;
+    //    }
+
+    //    // Clear the list of documents (optional)
+    //    loaded_documents.clear();
+
 
 }
 
@@ -94,112 +161,6 @@ QStringList MainWindow::open_excel_files()
     return QStringList(); // Return an empty list if no folder was selected
 
 }
-
-
-
-void MainWindow::on_button_read_clicked()
-{
-    QString files_names;
-
-    for(const QString &file :files_paths_list ){
-        // Get the names of the files
-        QString file_path = QFileInfo(file).fileName();
-
-        // Separate by comma
-        if(!files_names.isEmpty()){
-            files_names += '\n';
-        }
-
-        // Add to the list
-        files_names += file_path;
-    }
-
-    // Set visible the textEdit
-    ui->textEdit_names_files->setVisible(true);
-
-    // Set visible the label
-    ui->label_files_selected->setVisible(true);
-
-    // Add the names to the label
-    ui->textEdit_names_files->setPlainText(files_names);
-
-//    int document_number = 1;
-
-//    for(const QString &path : files_paths_list){
-
-//        if (QFile::exists(path)){
-
-//            // Charge documents from each path
-//            QXlsx::Document* document = new QXlsx::Document(path);
-//            if(document->load()){
-//                // Add each document to the list
-//                loaded_documents.append(document);
-//                qDebug() << "File number " << document_number;
-//                document_number += 1;
-
-//            }
-//            else
-//            {
-//                qDebug() << "Error al cargar el archivo: " << path;
-//            }
-//        }
-//    }
-
-
-    QThreadPool *threadPool = QThreadPool::globalInstance(); // Obtener el pool de hilos global
-
-    for (const QString &path : files_paths_list)
-    {
-        // Iniciar la carga del documento en segundo plano
-        QtConcurrent::run(&MainWindow::loadDocumentInBackground, path);
-    }
-
-
-
-
-
-
-
-
-    // Free memory for the documents loaded on the heap
-    foreach (QXlsx::Document* document, loaded_documents)
-    {
-        delete document;
-    }
-
-    // Clear the list of documents (optional)
-    loaded_documents.clear();
-
-
-
-}
-
-void MainWindow::loadDocumentInBackground(const QString &path)
-{
-    if (QFile::exists(path))
-    {
-        QXlsx::Document *document = new QXlsx::Document(path);
-        if (document->load())
-        {
-            emit documentLoaded(document); // Emitir señal para manejar el documento cargado
-        }
-        else
-        {
-            qDebug() << "Error al cargar el archivo: " << path;
-            delete document;
-        }
-    }
-    else
-    {
-        qDebug() << "La ruta del archivo no existe: " << path;
-    }
-}
-
-
-
-
-
-
 
 
 

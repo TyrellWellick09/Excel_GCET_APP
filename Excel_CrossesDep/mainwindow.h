@@ -4,9 +4,7 @@
 #include <QMainWindow>
 #include "xlsxdocument.h"
 #include <QThreadPool>
-#include <QtConcurrent>
-#include <QFuture>
-
+#include "taskchargedocuments.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,17 +18,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-signals:
-    void documentLoaded(QXlsx::Document *document);
 
-
-public slots:
-    void loadDocumentInBackground(const QString &path);
 
 
 private slots:
     void on_button_search_files_clicked();
-    void on_button_read_clicked();
     void on_button_search_export_clicked();
 
 

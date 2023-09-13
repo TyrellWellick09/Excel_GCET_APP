@@ -20,10 +20,12 @@ include(./QXlsx.pri)
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    taskchargedocuments.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    taskchargedocuments.h
 
 FORMS += \
     mainwindow.ui
