@@ -118,6 +118,7 @@ void MainWindow::on_button_search_files_clicked()
 
 
 
+
     //    // Free memory for the documents loaded on the heap
     //    foreach (QXlsx::Document* document, loaded_documents)
     //    {
@@ -159,6 +160,12 @@ QStringList MainWindow::open_excel_files()
 
 
     return QStringList(); // Return an empty list if no folder was selected
+
+}
+
+
+void MainWindow::updateProgress()
+{
 
 }
 

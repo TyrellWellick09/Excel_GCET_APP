@@ -5,6 +5,9 @@
 #include "xlsxdocument.h"
 #include <QThreadPool>
 #include "taskchargedocuments.h"
+#include <QElapsedTimer>
+
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,6 +37,7 @@ private:
     QString open_export_path();
     void get_data(QXlsx::Document &document);
     void get_index_selected_columns();
+    void updateProgress();
 
 
 //Variables private
