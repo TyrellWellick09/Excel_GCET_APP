@@ -5,7 +5,6 @@
 #include "xlsxdocument.h"
 #include <QThreadPool>
 #include "taskchargedocuments.h"
-#include <QElapsedTimer>
 
 
 
@@ -23,11 +22,12 @@ public:
 
 
 
-
 private slots:
     void on_button_search_files_clicked();
     void on_button_search_export_clicked();
 
+public slots:
+    void update_time_proccess(const QString& time_proccess, const QString& status, int progres_value, bool state);
 
 //Functions prototipes private
     void on_button_export_clicked();
@@ -53,4 +53,8 @@ private:
 private:
     Ui::MainWindow *ui;
 };
+
 #endif // MAINWINDOW_H
+
+//comment with vs code
+

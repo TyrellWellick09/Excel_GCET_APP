@@ -3,23 +3,28 @@
 
 #include <QRunnable>
 #include <QMainWindow>
-#include "mainwindow.h"
-
+#include "xlsxdocument.h"
+#include <QElapsedTimer>
+#include <QThread>
 
 
 class TaskChargeDocuments : public QRunnable
 {
 public:
-    TaskChargeDocuments(char id, QStringList paths_list, QList<QXlsx::Document*>* documents);
+    TaskChargeDocuments(QMainWindow* mainWindow, char id, QStringList paths_list, QList<QXlsx::Document*>* documents);
     ~TaskChargeDocuments();
 
 protected:
     void run();
+signals:
+    void write_label();
 
 private:
     char mId;
     QStringList mPathlist;
     QList<QXlsx::Document*>* mDocuments;
+    QMainWindow* mainWindow;
+
 
 
 };

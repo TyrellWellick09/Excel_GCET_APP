@@ -2,37 +2,43 @@
 #include <QDebug>
 #include <QFileInfo>
 
-TaskChargeDocuments::TaskChargeDocuments(char id, QStringList paths_list, QList<QXlsx::Document*>* documents)
-    : mId(id), mPathlist(paths_list), mDocuments(documents)
+
+TaskChargeDocuments::TaskChargeDocuments(QMainWindow* window, char id, QStringList paths_list, QList<QXlsx::Document*>* documents)
+    : mId(id), mPathlist(paths_list), mDocuments(documents) , mainWindow(window)
 {
     // Constructor
 }
 
-//TaskChargeDocuments::TaskChargeDocuments(char id, QStringList paths_list)
-//{
-//    mId = id;
-//    mPathlist = paths_list;
 
-//}
 
 TaskChargeDocuments::~TaskChargeDocuments()
 {
     qDebug() << mId << " ha terminado la carga de archivos";
 }
 
+
+
+
+
+
 void TaskChargeDocuments::run()
 {
     int document_number = 1;
+    int total_documnets_number = 0;
     int average_time_kb;
     double  average_time_files_kb;
     double time_proccess;
     double files_size = 0;
     QList<double> average_times; // mejor un contador y una suma;
     int suma = 0;
+    QString time_proccess_message;
+    int progress_value = 0;
+    QString status;
 
 
 
     for(const QString &path : mPathlist){
+        total_documnets_number = mPathlist.size();
 
         for(const QString &path : mPathlist){
             QFile file(path);
@@ -81,6 +87,35 @@ void TaskChargeDocuments::run()
 
                 // Add each document to the list
                 mDocuments->append(document);
+
+                progress_value = (document_number * 100)/total_documnets_number;
+
+                time_proccess_message = QStringLiteral("File number %1, Size %2 KB, Time left %3  sec.")
+                                            .arg(document_number)
+                                            .arg(fileSizeKB)
+                                            .arg(average_time_files_kb);
+
+
+                if(progress_value >= 100){status = "Load Complete";}
+
+
+
+
+                // Show time proccess
+                QMetaObject::invokeMethod(mainWindow, "update_time_proccess", Qt::QueuedConnection,
+                                          Q_ARG(QString, time_proccess_message),
+                                          Q_ARG(QString, status),
+                                          Q_ARG(int, progress_value),
+                                          Q_ARG(bool, true));
+
+
+
+
+
+
+
+
+
                 qDebug() << "File number " << document_number << "Size : " << fileSizeKB << "KB" << "Time : " << time_proccess << " sec";
                 qDebug() << "rest time: " << average_time_files_kb << "sec";
                 document_number += 1;
@@ -92,9 +127,14 @@ void TaskChargeDocuments::run()
             }
 
 
-
-
         }
     }
+
+    QThread::msleep(2000);
+    QMetaObject::invokeMethod(mainWindow, "update_time_proccess", Qt::QueuedConnection,
+                              Q_ARG(QString, ""),
+                              Q_ARG(QString, ""),
+                              Q_ARG(int, 0),
+                              Q_ARG(bool, false));
 }
 

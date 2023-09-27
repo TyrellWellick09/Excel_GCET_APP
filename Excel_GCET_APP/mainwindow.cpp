@@ -26,8 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->textEdit_names_files->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     // Set invisible the textEdit
     ui->textEdit_names_files->setVisible(false);
-    // Set invisible the label
-    ui->label_files_selected->setVisible(false);
+
+    ui->label_time_proccess->setVisible(false);
+    ui->progressBar->setVisible(false);
+    ui->label_status->setVisible(false);
+
+
 
 
 
@@ -74,50 +78,18 @@ void MainWindow::on_button_search_files_clicked()
     // Set visible the textEdit
     ui->textEdit_names_files->setVisible(true);
 
-    // Set visible the label
-    ui->label_files_selected->setVisible(true);
-
-    // Add the names to the label
+    // Add the names to the textEdit
     ui->textEdit_names_files->setPlainText(files_names);
 
-    //    int document_number = 1;
 
-    //    for(const QString &path : files_paths_list){
-
-    //        if (QFile::exists(path)){
-
-    //            // Charge documents from each path
-    //            QXlsx::Document* document = new QXlsx::Document(path);
-    //            if(document->load()){
-    //                // Add each document to the list
-    //                loaded_documents.append(document);
-    //                qDebug() << "File number " << document_number;
-    //                document_number += 1;
-
-    //            }
-    //            else
-    //            {
-    //                qDebug() << "Error al cargar el archivo: " << path;
-    //            }
-    //        }
-    //    }
-
-
-    TaskChargeDocuments *X = new TaskChargeDocuments('X', files_paths_list, &loaded_documents);
+    // Add the task to charge the documents to the Qthread Pool
+    TaskChargeDocuments *X = new TaskChargeDocuments(this, 'X', files_paths_list, &loaded_documents);
     QThreadPool::globalInstance()->start(X, QThread::NormalPriority);
 
     qDebug() << "Finish the procces";
 
-
-
-
-
-
-
-
-
-
-
+    // Show status
+    ui->label_status->setText("Finish Charge_Documents Task");
 
     //    // Free memory for the documents loaded on the heap
     //    foreach (QXlsx::Document* document, loaded_documents)
@@ -130,6 +102,20 @@ void MainWindow::on_button_search_files_clicked()
 
 
 }
+
+void MainWindow::update_time_proccess(const QString& time_proccess, const QString& status, int progres_value, bool state)
+{
+    ui->label_time_proccess->setVisible(state);
+    ui->progressBar->setVisible(state);
+    ui->label_status->setVisible(state);
+    ui->label_time_proccess->setText(time_proccess);
+    ui->label_status->setText(status);
+    ui->progressBar->setValue(progres_value);
+
+
+}
+
+
 
 QStringList MainWindow::open_excel_files()
 {
@@ -170,8 +156,6 @@ void MainWindow::updateProgress()
 }
 
 
-
-
 void MainWindow::on_button_search_export_clicked()
 {
     export_path = open_export_path();
@@ -182,9 +166,6 @@ void MainWindow::on_button_search_export_clicked()
         }
     }
 }
-
-
-
 
 
 QString MainWindow::open_export_path()
@@ -204,8 +185,6 @@ QString MainWindow::open_export_path()
 
     return "";
 }
-
-
 
 
 void MainWindow::get_data(QXlsx::Document &document){
@@ -282,9 +261,6 @@ void MainWindow::get_data(QXlsx::Document &document){
 
 
 }
-
-
-
 
 
 void MainWindow::on_button_export_clicked()
