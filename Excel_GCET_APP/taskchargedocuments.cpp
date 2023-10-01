@@ -13,7 +13,7 @@ TaskChargeDocuments::TaskChargeDocuments(QMainWindow* window, char id, QStringLi
 
 TaskChargeDocuments::~TaskChargeDocuments()
 {
-    qDebug() << mId << " ha terminado la carga de archivos";
+    qDebug() << mId << " Load files finish.";
 }
 
 
@@ -50,6 +50,10 @@ void TaskChargeDocuments::run()
         if (QFile::exists(path)){
             QElapsedTimer timer;
             timer.start();
+
+
+
+
 
             // Charge documents from each path
             QXlsx::Document* document = new QXlsx::Document(path);
@@ -96,17 +100,30 @@ void TaskChargeDocuments::run()
                                             .arg(average_time_files_kb);
 
 
-                if(progress_value >= 100){status = "Load Complete";}
+                if(mId == 'X'){
+                    // Show time proccess
+                    QMetaObject::invokeMethod(mainWindow, "update_booms_section", Qt::QueuedConnection,
+                                              Q_ARG(QString, time_proccess_message),
+                                              Q_ARG(int, progress_value),
+                                              Q_ARG(bool, true));
+                }
+
+                if(mId == 'D'){
+                    QMetaObject::invokeMethod(mainWindow, "update_drms_section", Qt::QueuedConnection,
+                                              Q_ARG(int, progress_value),
+                                              Q_ARG(bool, true));
+                    QThread::msleep(2000);
+                    QMetaObject::invokeMethod(mainWindow, "update_drms_section", Qt::QueuedConnection,
+                                              Q_ARG(int, progress_value),
+                                              Q_ARG(bool, false));
+
+                }
 
 
 
 
-                // Show time proccess
-                QMetaObject::invokeMethod(mainWindow, "update_time_proccess", Qt::QueuedConnection,
-                                          Q_ARG(QString, time_proccess_message),
-                                          Q_ARG(QString, status),
-                                          Q_ARG(int, progress_value),
-                                          Q_ARG(bool, true));
+
+
 
 
 
@@ -130,11 +147,12 @@ void TaskChargeDocuments::run()
         }
     }
 
-    QThread::msleep(2000);
-    QMetaObject::invokeMethod(mainWindow, "update_time_proccess", Qt::QueuedConnection,
-                              Q_ARG(QString, ""),
-                              Q_ARG(QString, ""),
-                              Q_ARG(int, 0),
-                              Q_ARG(bool, false));
+    if(mId == 'X'){
+        QThread::msleep(2000);
+        QMetaObject::invokeMethod(mainWindow, "update_booms_section", Qt::QueuedConnection,
+                                  Q_ARG(QString, ""),
+                                  Q_ARG(int, 0),
+                                  Q_ARG(bool, false));
+    }
 }
 

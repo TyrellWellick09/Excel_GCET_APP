@@ -6,7 +6,7 @@
 #include "xlsxdocument.h"
 #include <QElapsedTimer>
 #include <QThread>
-
+#include <QLabel>
 
 class TaskChargeDocuments : public QRunnable
 {

@@ -5,6 +5,9 @@
 #include "xlsxdocument.h"
 #include <QThreadPool>
 #include "taskchargedocuments.h"
+#include <QPaintEvent>
+#include <QLabel>
+
 
 
 
@@ -22,12 +25,17 @@ public:
 
 
 
+
 private slots:
     void on_button_search_files_clicked();
-    void on_button_search_export_clicked();
+    void on_button_search_files_drms_clicked();
 
 public slots:
-    void update_time_proccess(const QString& time_proccess, const QString& status, int progres_value, bool state);
+    void update_booms_section(const QString& time_proccess, int progres_value, bool state);
+    void update_drms_section(int progres_value, bool state);
+
+
+
 
 //Functions prototipes private
     void on_button_export_clicked();
@@ -37,7 +45,7 @@ private:
     QString open_export_path();
     void get_data(QXlsx::Document &document);
     void get_index_selected_columns();
-    void updateProgress();
+
 
 
 //Variables private
@@ -47,6 +55,7 @@ private:
     QVector<QVector<QString>> cell_values;
     QVector<int> selected_column_index;
     QList<QXlsx::Document*> loaded_documents;
+    QList<QXlsx::Document*> loaded_drms_document;
 
 
 
