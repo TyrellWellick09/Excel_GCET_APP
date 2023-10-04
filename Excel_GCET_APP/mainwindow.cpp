@@ -344,36 +344,13 @@ void MainWindow::get_data(QXlsx::Document &document){
 
 void MainWindow::on_button_export_clicked()
 {
-    uint8_t startRow = 5;
-    uint8_t startColumn = 5;
-    //get_index_selected_columns();
+    QString export_path;
 
-    QVector<QVector<QString>> cell_values_export; // Tu vector bidimensional con los valores
-
-    // Llenar cell_values_export con los valores de cell_values
-    for (int i = 0; i < cell_values.size(); ++i) {
-        QVector<QString> fila_export;
-        for (int j : selected_column_index) {
-            fila_export.append(cell_values[i][j]);
-        }
-        cell_values_export.append(fila_export);
-    }
+    // Add the task to charge the documents to the Qthread Pool
+    TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', export_path , &loaded_drms_document, &loaded_documents);
+    QThreadPool::globalInstance()->start(E, QThread::NormalPriority);
 
 
-    
-    // Crear un nuevo archivo Excel utilizando QXlsx
-    QXlsx::Document new_document;
-
-
-
-
-    for (int i = 0; i < cell_values_export.size(); ++i) {
-        const QVector<QString> &row = cell_values_export[i];
-        for (int j = 0; j < row.size(); ++j) {
-            QString value = row[j];
-            new_document.write(startRow + i, startColumn + j, value);
-        }
-    }
 
 
 

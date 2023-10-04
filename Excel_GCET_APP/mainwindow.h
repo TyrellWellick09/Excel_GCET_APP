@@ -5,6 +5,7 @@
 #include "xlsxdocument.h"
 #include <QThreadPool>
 #include "taskchargedocuments.h"
+#include "taskproccessdocuments.h"
 #include <QPaintEvent>
 #include <QLabel>
 
@@ -56,6 +57,7 @@ private:
     QVector<int> selected_column_index;
     QList<QXlsx::Document*> loaded_documents;
     QList<QXlsx::Document*> loaded_drms_document;
+    QStringList column_names_to_find = {"Part Number", "Supplier Code"};
 
 
 

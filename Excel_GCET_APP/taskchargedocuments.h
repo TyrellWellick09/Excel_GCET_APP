@@ -26,7 +26,6 @@ private:
     QMainWindow* mainWindow;
 
 
-
 };
 
 #endif // TASKCHARGEDOCUMENTS_H
