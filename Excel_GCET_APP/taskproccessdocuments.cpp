@@ -4,8 +4,8 @@
 #include <QStandardPaths>
 
 
-TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QString export_path, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents )
-    : mId(id), mexport_path(export_path), mdrms_document(drms_document), mbooms_documents(booms_documents),  mainWindow(window)
+TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QStringList export_path, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents )
+    : mId(id), mfile_paths(export_path), mdrms_document(drms_document), mbooms_documents(booms_documents),  mainWindow(window)
 {
     // Constructor
 }
@@ -26,9 +26,14 @@ void TaskProccessDocuments::run(){
     QMap<QString, QList<QVariant>> matchingDataMap;
 
     QList<int> rowIndexes;
+    int progress_value = 0;
 
 
     qDebug() << "Export Proccess start";
+
+    QMetaObject::invokeMethod(mainWindow, "update_export_section", Qt::QueuedConnection,
+                              Q_ARG(int, progress_value),
+                              Q_ARG(bool, true));
 
 
 
@@ -75,6 +80,16 @@ void TaskProccessDocuments::run(){
     // Obtener las listas de datos de las columnas que deseas comparar
     QList<QVariant> drms_designRegistrationData = drms_columnDataMap["Design Registration Project id"];
 
+    int name = 0;
+    bool start = false;
+
+    QList<QString> fileNames; // Aquí almacenaremos los nombres de archivo
+
+    foreach (const QString &filePath, mfile_paths) {
+        QFileInfo fileInfo(filePath);
+        QString fileName = fileInfo.fileName();
+        fileNames.append(fileName);
+    }
 
 
 
@@ -82,15 +97,25 @@ void TaskProccessDocuments::run(){
 
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
-            // Agregar el nombre del archivo boom
-            for (const QString &columnName : drms_columnDataMap.keys()) {
-                matchingDataMap[columnName].append(boomDocument->documentProperty("Title"));
+            if(start){
+                // Agregar una fila en blanco
+                for (const QString &columnName : drms_columnDataMap.keys()) {
+                    matchingDataMap[columnName].append(QVariant());
+                }
             }
 
-            // Agregar una fila en blanco
+            // Agregar el nombre del archivo boom
             for (const QString &columnName : drms_columnDataMap.keys()) {
-                matchingDataMap[columnName].append(QVariant());
+
+                if(columnName != drms_columnDataMap.keys().first()){
+                    matchingDataMap[columnName].append("");
+                }
+                else{matchingDataMap[columnName].append(fileNames[name]);}
             }
+            ++name;
+
+
+
 
             QXlsx::Worksheet *booms_worksheet = boomDocument->currentWorksheet();
             QStringList booms_columns; // Store the names of the columns
@@ -164,12 +189,9 @@ void TaskProccessDocuments::run(){
                 }
 
             }
-//            // Agregar dos filas en blanco
-//            for (int j = 0; j < 2; ++j) {
-//                for (const QString &columnName : drms_columnDataMap.keys()) {
-//                    matchingDataMap[columnName].append(QVariant());
-//                }
-//            }
+
+
+            start = true;
 
 
 
@@ -187,35 +209,6 @@ void TaskProccessDocuments::run(){
 
 
 
-//        foreach (const QString &columnName, drms_columnDataMap.keys()) {
-
-//            xlsx.write(1 , colum_number, columnName);
-//            ++colum_number;
-//        }
-
-
-//        for(int i = 0; i < rowIndexes.size(); ++i){
-//            int rowIndex = rowIndexes[i];
-//            //qDebug() << "Row at index" << rowIndex << ":";
-
-
-//            foreach (const QString &columnName, drms_columnDataMap.keys()) {
-//                QList<QVariant> columnData = drms_columnDataMap[columnName];
-//                ++colum_number;
-
-
-
-//                if (rowIndexes[i] < columnData.size()) {
-//                    QVariant cellValue = columnData[rowIndexes[i]];
-//                    //qDebug() << columnName << ": " << cellValue;
-//                    xlsx.write(i + 2, colum_number, cellValue);
-//                }
-//                else {
-//                    qDebug() << "Column" << columnName << "has no data at index" << rowIndexes[i];
-//                }
-//            }
-//            //qDebug() << "------------------------";
-//        }
 
         int rowIndex = 2; // Comenzar en la fila 2 para dejar espacio para encabezados
 
@@ -224,40 +217,20 @@ void TaskProccessDocuments::run(){
             QList<QVariant> columnData = matchingDataMap[columnName];
 
             for (int i = 0; i < columnData.size(); ++i) {
+
                 xlsx.write(rowIndex, matchingDataMap.keys().indexOf(columnName) + 1, columnData[i]);
                 ++rowIndex;
+
+
             }
             rowIndex = 2;
 
         }
 
 
-
-
-
-//        int colum_number = 0;
-
-
-//        // filas
-//        for (int i = 0; i < matchingDataMap.size(); ++i) {
-
-//            // columnas
-//            for (const QString &columnName : matchingDataMap.keys()) {
-//                QList<QVariant> columnData = matchingDataMap[columnName];
-//                ++colum_number;
-
-//                QVariant cellValue = columnData[i];
-
-//                xlsx.write(i+1, colum_number, cellValue);
-
-
-//            }
-
-//        }
-
         xlsx.setColumnWidth(1, 30);
-        xlsx.setColumnWidth(1, 30);
-        xlsx.setColumnWidth(1, 30);
+        xlsx.setColumnWidth(2, 35);
+        xlsx.setColumnWidth(3, 15);
 
 
 
@@ -266,23 +239,27 @@ void TaskProccessDocuments::run(){
 
         qDebug() << "Archivo Excel guardado en:" << filePath;
 
+        QMetaObject::invokeMethod(mainWindow, "update_export_section", Qt::QueuedConnection,
+                                  Q_ARG(int, progress_value),
+                                  Q_ARG(bool, false));
 
 
 
-        for (int i = 0; i < matchingDataMap.begin().value().size(); ++i) {
-            qDebug() << "Row" << i << ":";
-            for (const QString &columnName : matchingDataMap.keys()) {
-                QList<QVariant> columnData = matchingDataMap[columnName];
 
-                if (i < columnData.size()) {
-                    QVariant cellValue = columnData[i];
-                    qDebug() << columnName << ": " << cellValue;
-                } else {
-                    qDebug() << columnName << ": "; // Impresión de celda en blanco
-                }
-            }
-            qDebug() << "------------------------";
-        }
+//        for (int i = 0; i < matchingDataMap.begin().value().size(); ++i) {
+//            qDebug() << "Row" << i << ":";
+//            for (const QString &columnName : matchingDataMap.keys()) {
+//                QList<QVariant> columnData = matchingDataMap[columnName];
+
+//                if (i < columnData.size()) {
+//                    QVariant cellValue = columnData[i];
+//                    qDebug() << columnName << ": " << cellValue;
+//                } else {
+//                    qDebug() << columnName << ": "; // Impresión de celda en blanco
+//                }
+//            }
+//            qDebug() << "------------------------";
+//        }
 
 
 

@@ -346,8 +346,12 @@ void MainWindow::on_button_export_clicked()
 {
     QString export_path;
 
+    ui->progressBar_proccess_export->setRange(0, 0);
+    ui->progressBar_proccess_export->setVisible(true);
+    ui->label_loading_export->setVisible(true);
+
     // Add the task to charge the documents to the Qthread Pool
-    TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', export_path , &loaded_drms_document, &loaded_documents);
+    TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', files_paths_list , &loaded_drms_document, &loaded_documents);
     QThreadPool::globalInstance()->start(E, QThread::NormalPriority);
 
 
@@ -367,4 +371,27 @@ void MainWindow::on_button_export_clicked()
 //    }
 }
 
+void MainWindow::update_export_section(int progres_value, bool state)
+{
+    if(state){
+        // make visible the widgets
+        ui->label_loading_export->setVisible(state);
+        ui->progressBar_proccess_export->setVisible(state);
 
+        // update the widgets
+        ui->label_loading_export->setText("LOADING...");
+        ui->progressBar_proccess_export->setValue(progres_value);
+        if(progres_value >=100){ui->label_loading_drms->setText("LOADED.");}
+
+    }
+    else{
+        // make visible the widgets
+        ui->label_loading_export->setVisible(state);
+        ui->progressBar_proccess_export->setVisible(state);
+
+        // update the widgets
+        ui->label_loading_export->setText("");
+        ui->progressBar_proccess_export->setValue(progres_value);
+
+    }
+}

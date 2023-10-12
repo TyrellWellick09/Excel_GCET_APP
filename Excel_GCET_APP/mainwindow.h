@@ -34,6 +34,7 @@ private slots:
 public slots:
     void update_booms_section(const QString& time_proccess, int progres_value, bool state);
     void update_drms_section(int progres_value, bool state);
+    void update_export_section(int progres_value, bool state);
 
 
 

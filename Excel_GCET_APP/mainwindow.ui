@@ -34,6 +34,12 @@
   <property name="windowTitle">
    <string>EXCEL GCET APP</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: black;
+ 
+color: rgb(255, 255, 255);
+</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
@@ -96,10 +102,17 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);
+color : rgb(0, 0, 0)</string>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="button_search_files_drms">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(60, 199, 96);</string>
+          </property>
           <property name="text">
            <string>Search</string>
           </property>
@@ -266,10 +279,18 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QLineEdit" name="lineEdit"/>
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);
+color : rgb(0, 0, 0)</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="button_search_files">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(60, 199, 96);</string>
+          </property>
           <property name="text">
            <string>Search</string>
           </property>
@@ -417,7 +438,12 @@
        </layout>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEdit_names_files"/>
+       <widget class="QTextEdit" name="textEdit_names_files">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);
+color : rgb(0, 0, 0)</string>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -438,6 +464,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
            <widget class="QPushButton" name="button_clean">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(60, 199, 96);</string>
+            </property>
             <property name="text">
              <string>Clean</string>
             </property>
@@ -445,6 +474,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="button_export">
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(60, 199, 96);</string>
+            </property>
             <property name="text">
              <string>Export</string>
             </property>

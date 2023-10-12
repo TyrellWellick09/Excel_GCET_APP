@@ -16,8 +16,7 @@ public:
 
 protected:
     void run();
-signals:
-    void write_label();
+
 
 private:
     char mId;
