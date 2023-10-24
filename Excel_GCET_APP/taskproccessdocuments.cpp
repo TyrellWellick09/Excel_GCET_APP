@@ -17,7 +17,25 @@ TaskProccessDocuments::~TaskProccessDocuments()
 
 void TaskProccessDocuments::run(){
 
-    QStringList drms_column_names_to_find = {"Design Registration Project id", "Part mask with supplier prefix and '*'", "Supplier"};
+    QStringList drms_column_names_to_find = {"Design Registration Project id",
+                                             "Customer",
+                                             "Sales Office",
+                                             "Name",
+                                             "Design Registration Project Name",
+                                             "Supplier",
+                                             "Part mask with supplier prefix and '*'",
+                                             "Annual value",
+                                             "Status Text",
+                                             "Date Design Registration Submitted",
+                                             "Approved Date",
+                                             "Design Registration Win/Winbuy Date",
+                                             "Industry",
+                                             "Market",
+                                             "FAE Name",
+                                             "AM Name"};
+
+
+
     QStringList booms_column_names_to_find = {"Project Number", "Part Number", };
 
     // Start a map to store the values of each document

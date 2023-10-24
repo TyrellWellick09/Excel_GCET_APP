@@ -27,13 +27,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->textEdit_names_files->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     ui->textEdit_names_files->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-//    // Set invisible the textEdit
-//    ui->textEdit_names_files->setVisible(false);
-
     ui->label_loading_drms->setVisible(false);
     ui->progressBar_proccess_drms->setVisible(false);
-//    ui->progressBar_proccess_drms->setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px;}");
-//    ui->progressBar_proccess_drms->setTextVisible(false);
+
     ui->label_time_proccess_drms->setVisible(false);
 
     ui->label_loading_booms->setVisible(false);
@@ -99,19 +95,6 @@ void MainWindow::on_button_search_files_clicked()
         qDebug() << "No files was selected";
     }
 
-
-
-    // Show status
-    //ui->label_status->setText("Finish Charge_Documents Task");
-
-    //    // Free memory for the documents loaded on the heap
-    //    foreach (QXlsx::Document* document, loaded_documents)
-    //    {
-    //        delete document;
-    //    }
-
-    //    // Clear the list of documents (optional)
-    //    loaded_documents.clear();
 
 
 }
@@ -266,109 +249,27 @@ QString MainWindow::open_export_path()
 }
 
 
-void MainWindow::get_data(QXlsx::Document &document){
-
-    int first_column = 0;
-    int end_column = 0;
-    int first_row = 0;
-    int end_row = 0;
-
-    //Obtener la cantidad de columnas escritas en la primera hoja
-    int columnCount = document.dimension().lastColumn() - document.dimension().firstColumn() + 1;
-
-
-    first_column = document.dimension().firstColumn();
-    first_row = document.dimension().firstRow();
-    end_column = document.dimension().lastColumn();
-    end_row = document.dimension().lastRow();
-
-
-//    // Mostrar la cantidad de columnas por consola
-//    qDebug() << "El archivo tiene:" << columnCount <<"columnas";
-//    qDebug() << "La primera columna es:" << document.dimension().firstColumn();
-//    qDebug() << "La ultima columna es:" << document.dimension().lastColumn();
-//    qDebug() << "La primera fila es:" << document.dimension().firstRow();
-//    qDebug() << "La ultima fila es:" << document.dimension().lastRow();
-
-
-
-    // Leer y almacenar los valores del rango de celdas
-    for (int row = first_row; row <= end_row; ++row) {
-        QVector<QString> rowData;
-        for (int column = first_column; column <= end_column; ++column) {
-            QXlsx::Cell *cell = document.cellAt(row, column);
-            if (cell) {
-                rowData.push_back(cell->value().toString());
-            } else {
-                rowData.push_back(""); // Celda vacía
-            }
-        }
-        cell_values.push_back(rowData);
-    }
-
-    // Configurar el modelo de datos del QTableView
-    QStandardItemModel *model = new QStandardItemModel(cell_values.size(), cell_values[0].size());
-    for (int row = 0; row < cell_values.size(); ++row) {
-        for (int column = 0; column < cell_values[row].size(); ++column) {
-            QModelIndex index = model->index(row, column);
-            model->setData(index, cell_values[row][column]);
-        }
-    }
-
-    // Cambiar encabezado de la fila
-    QStringList verticalHeaders;
-    for (int i = 0; i < model->rowCount(); ++i) {
-        verticalHeaders << QString::number(i);
-    }
-    model->setVerticalHeaderLabels(verticalHeaders);
-
-    // Cambiar encabezado de columna
-    QStringList horizontalHeaders;
-    for (int j = 0; j < model->columnCount(); ++j) {
-        horizontalHeaders << QString::number(j);
-    }
-    model->setHorizontalHeaderLabels(horizontalHeaders);
-
-
-
-    // Asignar el modelo al QTableView
-    //ui->tableview_columns->setModel(model);
-
-
-
-
-
-
-}
-
 
 void MainWindow::on_button_export_clicked()
 {
-    QString export_path;
+    if(!files_paths_list.isEmpty() || !loaded_documents.isEmpty() || !loaded_drms_document.isEmpty()){
 
-    ui->progressBar_proccess_export->setRange(0, 0);
-    ui->progressBar_proccess_export->setVisible(true);
-    ui->label_loading_export->setVisible(true);
+        ui->progressBar_proccess_export->setRange(0, 0);
+        ui->progressBar_proccess_export->setVisible(true);
+        ui->label_loading_export->setVisible(true);
 
-    // Add the task to charge the documents to the Qthread Pool
-    TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', files_paths_list , &loaded_drms_document, &loaded_documents);
-    QThreadPool::globalInstance()->start(E, QThread::NormalPriority);
+        // Add the task to charge the documents to the Qthread Pool
+        TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', files_paths_list , &loaded_drms_document, &loaded_documents);
+        QThreadPool::globalInstance()->start(E, QThread::NormalPriority);
+    }
+    else{
+        // StatusBar error message
+    }
 
 
 
 
 
-
-//    // Guardar el nuevo archivo en la ubicación deseada
-//    QString savePath = export_path + "/nuevo_archivo.xlsx";
-//    new_document.saveAs(savePath);
-
-//    // Verificar si la variable está vacía
-//    if (file_paths.isEmpty()) {
-//        QMessageBox::warning(this, "Warning", "The file path is empty");
-//    } else if (export_path.isEmpty()) {
-//        QMessageBox::warning(this, "Warning", "The export path is empty");
-//    }
 }
 
 void MainWindow::update_export_section(int progres_value, bool state)
@@ -395,3 +296,19 @@ void MainWindow::update_export_section(int progres_value, bool state)
 
     }
 }
+
+void MainWindow::on_button_clean_clicked()
+{
+    // Clear all the lists and variables
+    files_paths_list.clear();
+    loaded_documents.clear();
+    loaded_drms_document.clear();
+
+    // Clean the main window's widgets
+
+    ui->lineEdit->clear();
+    ui->lineEdit_drms->clear();
+    ui->textEdit_names_files->clear();
+
+}
+

@@ -31,6 +31,8 @@ private slots:
     void on_button_search_files_clicked();
     void on_button_search_files_drms_clicked();
 
+    void on_button_clean_clicked();
+
 public slots:
     void update_booms_section(const QString& time_proccess, int progres_value, bool state);
     void update_drms_section(int progres_value, bool state);
@@ -45,8 +47,6 @@ public slots:
 private:
     QStringList open_excel_files();
     QString open_export_path();
-    void get_data(QXlsx::Document &document);
-    void get_index_selected_columns();
 
 
 
