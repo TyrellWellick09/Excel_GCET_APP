@@ -30,18 +30,20 @@ public:
 private slots:
     void on_button_search_files_clicked();
     void on_button_search_files_drms_clicked();
-
     void on_button_clean_clicked();
+    void on_exportID_clicked();
 
 public slots:
     void update_booms_section(const QString& time_proccess, int progres_value, bool state);
     void update_drms_section(int progres_value, bool state);
     void update_export_section(int progres_value, bool state);
+    void update_projects_ID(QList<QVariant> booms_columnsID);
 
 
 
 
 //Functions prototipes private
+//private:
     void on_button_export_clicked();
 
 private:
@@ -59,6 +61,7 @@ private:
     QList<QXlsx::Document*> loaded_documents;
     QList<QXlsx::Document*> loaded_drms_document;
     QStringList column_names_to_find = {"Part Number", "Supplier Code"};
+    QStringList  projects_ID;
 
 
 
@@ -69,4 +72,6 @@ private:
 #endif // MAINWINDOW_H
 
 //comment with vs code
+
+
 

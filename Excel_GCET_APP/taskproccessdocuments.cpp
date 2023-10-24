@@ -47,7 +47,7 @@ void TaskProccessDocuments::run(){
     int progress_value = 0;
 
 
-    qDebug() << "Export Proccess start";
+    //qDebug() << "Export Proccess start";
 
     QMetaObject::invokeMethod(mainWindow, "update_export_section", Qt::QueuedConnection,
                               Q_ARG(int, progress_value),
@@ -87,12 +87,12 @@ void TaskProccessDocuments::run(){
             }
         }
 
-        qDebug() << "DRMS Proccessed";
+        //qDebug() << "DRMS Proccessed";
 
 
     }
     else {
-        qDebug() << "The drms document have not charged correctly";
+        //qDebug() << "The drms document have not charged correctly";
     }
 
     // Obtener las listas de datos de las columnas que deseas comparar
@@ -141,6 +141,11 @@ void TaskProccessDocuments::run(){
 
 
 
+
+
+
+
+
             // Get the names of the columns
             if (booms_worksheet) {
                 for (int col = 1; col <= booms_worksheet->dimension().columnCount(); ++col) {
@@ -160,18 +165,21 @@ void TaskProccessDocuments::run(){
                     for (int row = 2; row <= booms_worksheet_dimention; ++row) {
                         QVariant booms_cellData = booms_worksheet->read(row, booms_columnIndex + 1); // +1 porque las columnas comienzan desde 1
                         booms_columnData.append(booms_cellData);
+
                     }
 
                     // Almacenar los datos de la columna en el mapa
                     booms_columnDataMap[desiredColumnName] = booms_columnData;
+
+
 
                 }
             }
 
             // Comparative of the files
 
-            qDebug() << "Comparative Init";
-            qDebug() << "project booms : "<<"booms_projectNumberData";
+//            qDebug() << "Comparative Init";
+//            qDebug() << "project booms : "<<"booms_projectNumberData";
 
 
 
@@ -262,22 +270,6 @@ void TaskProccessDocuments::run(){
                                   Q_ARG(bool, false));
 
 
-
-
-//        for (int i = 0; i < matchingDataMap.begin().value().size(); ++i) {
-//            qDebug() << "Row" << i << ":";
-//            for (const QString &columnName : matchingDataMap.keys()) {
-//                QList<QVariant> columnData = matchingDataMap[columnName];
-
-//                if (i < columnData.size()) {
-//                    QVariant cellValue = columnData[i];
-//                    qDebug() << columnName << ": " << cellValue;
-//                } else {
-//                    qDebug() << columnName << ": "; // Impresión de celda en blanco
-//                }
-//            }
-//            qDebug() << "------------------------";
-//        }
 
 
 

@@ -53,6 +53,7 @@ void TaskChargeDocuments::run()
 
 
 
+
                 // Charge documents from each path
                 QXlsx::Document* document = new QXlsx::Document(path);
 
@@ -129,6 +130,49 @@ void TaskChargeDocuments::run()
                     qDebug() << "File number " << document_number << "Size : " << fileSizeKB << "KB" << "Time : " << time_proccess << " sec";
                     qDebug() << "rest time: " << average_time_files_kb << "sec";
                     document_number += 1;
+
+
+                    // Get the project ids
+                    if(mId == 'X'){
+
+                        QXlsx::Worksheet *booms_worksheet = document->currentWorksheet();
+                        QStringList booms_columns; // Store the names of the columns
+                        int booms_worksheet_dimention = booms_worksheet->dimension().rowCount();
+
+
+
+                        // Get the names of the columns
+                        if (booms_worksheet) {
+                            for (int col = 1; col <= booms_worksheet->dimension().columnCount(); ++col) {
+                                booms_columns.append(booms_worksheet->read(1, col).toString());
+                            }
+                        }
+
+
+                        int booms_columnIndex = booms_columns.indexOf("Project Number");
+                        // Start a list to store the column data
+                        QList<QVariant> booms_columnData;
+
+                        if (booms_columnIndex != -1) {
+
+
+
+                            // Recorrer las filas para obtener los datos de esta columna
+                            for (int row = 2; row <= booms_worksheet_dimention; ++row) {
+                                QVariant booms_cellData = booms_worksheet->read(row, booms_columnIndex + 1); // +1 porque las columnas comienzan desde 1
+
+                                booms_columnData.append(booms_cellData);
+
+                            }
+                        }
+
+
+
+                        QMetaObject::invokeMethod(mainWindow, "update_projects_ID", Qt::QueuedConnection,
+                                                  Q_ARG(QList<QVariant>, booms_columnData));
+
+                    }
+
 
                 }
                 else

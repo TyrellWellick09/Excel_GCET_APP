@@ -10,6 +10,8 @@
 #include "xlsxdocument.h"
 #include "xlsxcellrange.h"
 #include <QStandardItemModel>
+#include <QClipboard>
+
 
 
 
@@ -39,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_loading_export->setVisible(false);
     ui->progressBar_proccess_export->setVisible(false);
     ui->label_time_proccess_export->setVisible(false);
+
+    ui->exportID->setVisible(false);
 
 }
 
@@ -88,6 +92,8 @@ void MainWindow::on_button_search_files_clicked()
         QThreadPool::globalInstance()->start(X, QThread::NormalPriority);
 
         qDebug() << "Finish the procces";
+        ui->exportID->setVisible(true);
+
 
 
     }
@@ -98,6 +104,176 @@ void MainWindow::on_button_search_files_clicked()
 
 
 }
+
+
+void MainWindow::on_button_search_files_drms_clicked()
+{
+
+    // Open a file dialog window
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFile); // Change the mode to Directory to select a file
+    dialog.setNameFilter("Excel File(*.xlsx *.xls)"); // Filter by .Xlsx and . Xls
+
+
+
+    if (dialog.exec())
+    {
+        QStringList drms_selected = dialog.selectedFiles(); // Variable to store the file path
+        QString file_path = QFileInfo(drms_selected.constFirst()).fileName();
+        if (!drms_selected.isEmpty())
+        {
+            qDebug() << "File charge successful: " << drms_selected;
+
+            // Add the task to charge the documents to the Qthread Pool
+            TaskChargeDocuments *D = new TaskChargeDocuments(this, 'D', drms_selected, &loaded_drms_document);
+            QThreadPool::globalInstance()->start(D, QThread::NormalPriority);
+
+            ui->lineEdit_drms->setText(drms_selected.constFirst());
+
+            ui->progressBar_proccess_drms->setRange(0, 0);
+            ui->progressBar_proccess_drms->setVisible(true);
+            ui->label_loading_drms->setVisible(true);
+
+        }
+
+
+    }
+
+
+
+}
+
+
+void MainWindow::on_exportID_clicked()
+{
+
+    qDebug() << "Lista de project IDs = " << projects_ID;
+
+    // Accede al portapapeles y copia la cadena combinada
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    QString copy_message;
+
+    foreach (const QString &ID, projects_ID) {
+
+        bool not_number = false;
+
+        foreach (const QChar &character, ID){
+
+            if(!character.isDigit()){
+                not_number = true;
+                break;
+
+            }
+
+        }
+
+        if(not_number == false){
+            copy_message += ID + '\n';
+        }
+
+    }
+
+    clipboard->setText(copy_message);
+
+
+}
+
+
+void MainWindow::on_button_export_clicked()
+{
+    if(!files_paths_list.isEmpty() || !loaded_documents.isEmpty() || !loaded_drms_document.isEmpty()){
+
+        ui->progressBar_proccess_export->setRange(0, 0);
+        ui->progressBar_proccess_export->setVisible(true);
+        ui->label_loading_export->setVisible(true);
+
+        // Add the task to charge the documents to the Qthread Pool
+        TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', files_paths_list , &loaded_drms_document, &loaded_documents);
+        QThreadPool::globalInstance()->start(E, QThread::NormalPriority);
+    }
+    else{
+        // StatusBar error message
+    }
+
+
+
+
+
+}
+
+
+void MainWindow::on_button_clean_clicked()
+{
+    // Clear all the lists and variables
+    files_paths_list.clear();
+    loaded_documents.clear();
+    loaded_drms_document.clear();
+
+    // Clean the main window's widgets
+
+    ui->lineEdit->clear();
+    ui->lineEdit_drms->clear();
+    ui->textEdit_names_files->clear();
+    ui->exportID->setVisible(false);
+
+}
+
+
+
+
+QStringList MainWindow::open_excel_files()
+{
+    // Open a file dialog window
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory); // Change the mode to Directory to select a folder
+    dialog.setOption(QFileDialog::ShowDirsOnly, true); // Show folders only
+
+    QString selectedFolder; // Variable to store the folder path
+    if (dialog.exec())
+    {
+        QStringList selected_files = dialog.selectedFiles(); // Get the path of the folder
+        if (!selected_files.isEmpty())
+        {
+            selectedFolder = selected_files.first(); // Store in selectedFiles
+            // Set the folder path to the QLineEdit
+            ui->lineEdit->setText(selectedFolder);
+        }
+        QDir directory(selectedFolder);
+        QStringList fileFilters;
+        fileFilters << "*.xlsx" << "*.xls"; // Add the file extensions you want to process here
+        QStringList files_list = directory.entryList(fileFilters, QDir::Files);
+        for (QString &file : files_list) {
+            file = directory.absoluteFilePath(file); // Get the full path of each file and stor in files_list
+        }
+        return files_list;
+    }
+
+
+    return QStringList(); // Return an empty list if no folder was selected
+
+}
+
+
+QString MainWindow::open_export_path()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setWindowTitle("Seleccionar Carpeta de Salida");
+
+    if (dialog.exec())
+    {
+        QStringList selectedDirectories = dialog.selectedFiles();
+        if (!selectedDirectories.isEmpty())
+        {
+            return selectedDirectories.first();
+        }
+    }
+
+    return "";
+}
+
+
+
 
 void MainWindow::update_booms_section(const QString& time_proccess, int progres_value, bool state)
 {
@@ -156,122 +332,6 @@ void MainWindow::update_drms_section(int progres_value, bool state)
 }
 
 
-
-QStringList MainWindow::open_excel_files()
-{
-    // Open a file dialog window
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory); // Change the mode to Directory to select a folder
-    dialog.setOption(QFileDialog::ShowDirsOnly, true); // Show folders only
-
-    QString selectedFolder; // Variable to store the folder path
-    if (dialog.exec())
-    {
-        QStringList selected_files = dialog.selectedFiles(); // Get the path of the folder
-        if (!selected_files.isEmpty())
-        {
-            selectedFolder = selected_files.first(); // Store in selectedFiles
-            // Set the folder path to the QLineEdit
-            ui->lineEdit->setText(selectedFolder);
-        }
-        QDir directory(selectedFolder);
-        QStringList fileFilters;
-        fileFilters << "*.xlsx" << "*.xls"; // Add the file extensions you want to process here
-        QStringList files_list = directory.entryList(fileFilters, QDir::Files);
-        for (QString &file : files_list) {
-            file = directory.absoluteFilePath(file); // Get the full path of each file and stor in files_list
-        }
-        return files_list;
-    }
-
-
-    return QStringList(); // Return an empty list if no folder was selected
-
-}
-
-
-void MainWindow::on_button_search_files_drms_clicked()
-{
-
-    // Open a file dialog window
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile); // Change the mode to Directory to select a file
-    dialog.setNameFilter("Excel File(*.xlsx *.xls)"); // Filter by .Xlsx and . Xls
-
-
-
-    if (dialog.exec())
-    {
-        QStringList drms_selected = dialog.selectedFiles(); // Variable to store the file path
-        QString file_path = QFileInfo(drms_selected.constFirst()).fileName();
-        if (!drms_selected.isEmpty())
-        {
-            qDebug() << "File charge successful: " << drms_selected;
-
-            // Add the task to charge the documents to the Qthread Pool
-            TaskChargeDocuments *D = new TaskChargeDocuments(this, 'D', drms_selected, &loaded_drms_document);
-            QThreadPool::globalInstance()->start(D, QThread::NormalPriority);
-
-            ui->lineEdit_drms->setText(drms_selected.constFirst());
-
-            ui->progressBar_proccess_drms->setRange(0, 0);
-            ui->progressBar_proccess_drms->setVisible(true);
-            ui->label_loading_drms->setVisible(true);
-
-        }
-
-
-    }
-
-
-
-}
-
-
-
-
-QString MainWindow::open_export_path()
-{
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setWindowTitle("Seleccionar Carpeta de Salida");
-
-    if (dialog.exec())
-    {
-        QStringList selectedDirectories = dialog.selectedFiles();
-        if (!selectedDirectories.isEmpty())
-        {
-            return selectedDirectories.first();
-        }
-    }
-
-    return "";
-}
-
-
-
-void MainWindow::on_button_export_clicked()
-{
-    if(!files_paths_list.isEmpty() || !loaded_documents.isEmpty() || !loaded_drms_document.isEmpty()){
-
-        ui->progressBar_proccess_export->setRange(0, 0);
-        ui->progressBar_proccess_export->setVisible(true);
-        ui->label_loading_export->setVisible(true);
-
-        // Add the task to charge the documents to the Qthread Pool
-        TaskProccessDocuments *E = new TaskProccessDocuments(this, 'E', files_paths_list , &loaded_drms_document, &loaded_documents);
-        QThreadPool::globalInstance()->start(E, QThread::NormalPriority);
-    }
-    else{
-        // StatusBar error message
-    }
-
-
-
-
-
-}
-
 void MainWindow::update_export_section(int progres_value, bool state)
 {
     if(state){
@@ -297,18 +357,31 @@ void MainWindow::update_export_section(int progres_value, bool state)
     }
 }
 
-void MainWindow::on_button_clean_clicked()
-{
-    // Clear all the lists and variables
-    files_paths_list.clear();
-    loaded_documents.clear();
-    loaded_drms_document.clear();
 
-    // Clean the main window's widgets
+void MainWindow::update_projects_ID(QList<QVariant> booms_columnsID){
 
-    ui->lineEdit->clear();
-    ui->lineEdit_drms->clear();
-    ui->textEdit_names_files->clear();
+
+
+
+    for (const QVariant& variant : booms_columnsID) {
+        if (variant.canConvert<QString>()) {
+
+            QString project = variant.toString();
+
+            if(!projects_ID.contains(project)){
+                projects_ID.append(project);
+            }
+
+        } else {
+
+        }
+    }
+
+    qDebug() <<"List of IDs" << projects_ID;
+
+
+
+
+
 
 }
-
