@@ -14,6 +14,20 @@ TaskChargeDocuments::TaskChargeDocuments(QMainWindow* window, char id, QStringLi
 TaskChargeDocuments::~TaskChargeDocuments()
 {
     qDebug() << mId << " Load files finish.";
+
+    if(mId == 'X'){
+
+        QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
+                                  Q_ARG(QString, "Booms charged correctly"),
+                                  Q_ARG(int, 3000));
+
+
+    }
+    else{
+        QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
+                                  Q_ARG(QString, "DRMS file charged correctly"),
+                                  Q_ARG(int, 3000));
+    }
 }
 
 
@@ -107,9 +121,6 @@ void TaskChargeDocuments::run()
                                                   Q_ARG(bool, true));
 
 
-
-
-
                     }
 
                     if(mId == 'D'){
@@ -127,8 +138,10 @@ void TaskChargeDocuments::run()
 
 
 
-                    qDebug() << "File number " << document_number << "Size : " << fileSizeKB << "KB" << "Time : " << time_proccess << " sec";
-                    qDebug() << "rest time: " << average_time_files_kb << "sec";
+
+
+//                    qDebug() << "File number " << document_number << "Size : " << fileSizeKB << "KB" << "Time : " << time_proccess << " sec";
+//                    qDebug() << "rest time: " << average_time_files_kb << "sec";
                     document_number += 1;
 
 
@@ -177,6 +190,9 @@ void TaskChargeDocuments::run()
                 }
                 else
                 {
+                    QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
+                                              Q_ARG(QString, "Error to charge the file"),
+                                              Q_ARG(int, 0));
                     qDebug() << "Error al cargar el archivo: " << path;
                 }
 

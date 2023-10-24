@@ -54,6 +54,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_button_search_files_clicked()
 {
+    ui->statusBar->clearMessage();
     QString files_names;
 
     // Get the list of files in the selected folder
@@ -61,11 +62,9 @@ void MainWindow::on_button_search_files_clicked()
 
     // Check if it's not empty
     if (!files_paths_list.isEmpty()) {
+
         // Print the list of files to the console
-        qDebug() << "Files found in the folder:";
-        for (const QString &file_path : files_paths_list) {
-            qDebug() << file_path;
-        }
+        qDebug() << "Files found in the folder";
 
         for(const QString &file :files_paths_list ){
             // Get the names of the files
@@ -91,14 +90,15 @@ void MainWindow::on_button_search_files_clicked()
         TaskChargeDocuments *X = new TaskChargeDocuments(this, 'X', files_paths_list, &loaded_documents);
         QThreadPool::globalInstance()->start(X, QThread::NormalPriority);
 
-        qDebug() << "Finish the procces";
+
         ui->exportID->setVisible(true);
 
 
 
     }
     else{
-        qDebug() << "No files was selected";
+        ui->statusBar->showMessage("No files was selected");
+
     }
 
 
@@ -108,6 +108,7 @@ void MainWindow::on_button_search_files_clicked()
 
 void MainWindow::on_button_search_files_drms_clicked()
 {
+    ui->statusBar->clearMessage();
 
     // Open a file dialog window
     QFileDialog dialog(this);
@@ -122,7 +123,7 @@ void MainWindow::on_button_search_files_drms_clicked()
         QString file_path = QFileInfo(drms_selected.constFirst()).fileName();
         if (!drms_selected.isEmpty())
         {
-            qDebug() << "File charge successful: " << drms_selected;
+
 
             // Add the task to charge the documents to the Qthread Pool
             TaskChargeDocuments *D = new TaskChargeDocuments(this, 'D', drms_selected, &loaded_drms_document);
@@ -146,8 +147,9 @@ void MainWindow::on_button_search_files_drms_clicked()
 
 void MainWindow::on_exportID_clicked()
 {
+    ui->statusBar->clearMessage();
 
-    qDebug() << "Lista de project IDs = " << projects_ID;
+    //qDebug() << "Lista de project IDs = " << projects_ID;
 
     // Accede al portapapeles y copia la cadena combinada
     QClipboard *clipboard = QGuiApplication::clipboard();
@@ -173,7 +175,16 @@ void MainWindow::on_exportID_clicked()
 
     }
 
-    clipboard->setText(copy_message);
+    if(!copy_message.isEmpty()){
+
+        clipboard->setText(copy_message);
+        ui->statusBar->showMessage("Projects ID copy to the clipboard successfuly", 0);
+    }
+    else{
+        ui->statusBar->showMessage("There are not projects ID to copy");
+    }
+
+
 
 
 }
@@ -193,6 +204,7 @@ void MainWindow::on_button_export_clicked()
     }
     else{
         // StatusBar error message
+        ui->statusBar->showMessage("Error to export the file");
     }
 
 
@@ -377,11 +389,20 @@ void MainWindow::update_projects_ID(QList<QVariant> booms_columnsID){
         }
     }
 
-    qDebug() <<"List of IDs" << projects_ID;
+    //qDebug() <<"List of IDs" << projects_ID;
 
 
 
 
 
+
+}
+
+
+
+void MainWindow::update_statusBar(QString message, int time){
+
+    ui->statusBar->clearMessage();
+    ui->statusBar->showMessage(message, time);
 
 }

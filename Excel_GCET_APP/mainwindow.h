@@ -38,6 +38,8 @@ public slots:
     void update_drms_section(int progres_value, bool state);
     void update_export_section(int progres_value, bool state);
     void update_projects_ID(QList<QVariant> booms_columnsID);
+    void update_statusBar(QString message, int time);
+
 
 
 

@@ -13,6 +13,9 @@ TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QStri
 TaskProccessDocuments::~TaskProccessDocuments()
 {
     qDebug() << mId << " Procces files finish.";
+    QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
+                              Q_ARG(QString, "Export document proccess complete"),
+                              Q_ARG(int, 3000));
 }
 
 void TaskProccessDocuments::run(){
@@ -92,11 +95,15 @@ void TaskProccessDocuments::run(){
 
     }
     else {
-        //qDebug() << "The drms document have not charged correctly";
+        QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
+                                  Q_ARG(QString, "The drms document have not charged correctly"),
+                                  Q_ARG(int, 0));
+
     }
 
     // Obtener las listas de datos de las columnas que deseas comparar
     QList<QVariant> drms_designRegistrationData = drms_columnDataMap["Design Registration Project id"];
+    QList drms_datamap_keys = drms_columnDataMap.keys();
 
     int name = 0;
     bool start = false;
@@ -116,16 +123,17 @@ void TaskProccessDocuments::run(){
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
             if(start){
+
                 // Agregar una fila en blanco
-                for (const QString &columnName : drms_columnDataMap.keys()) {
+                for (const QString &columnName : drms_datamap_keys) {
                     matchingDataMap[columnName].append(QVariant());
                 }
             }
 
             // Agregar el nombre del archivo boom
-            for (const QString &columnName : drms_columnDataMap.keys()) {
+            for (const QString &columnName : drms_datamap_keys) {
 
-                if(columnName != drms_columnDataMap.keys().first()){
+                if(columnName != drms_datamap_keys.first()){
                     matchingDataMap[columnName].append("");
                 }
                 else{matchingDataMap[columnName].append(fileNames[name]);}
@@ -185,12 +193,10 @@ void TaskProccessDocuments::run(){
 
             QList<QVariant> booms_projectNumberData = booms_columnDataMap["Project Number"];
 
-            QList<QVariant> matchingDrmsData; // Almacenar los datos coincidentes de drms
 
 
             // Iterar sobre los valores de "Design Registration Project id" de drms
             for (int i = 0; i < drms_designRegistrationData.size(); ++i) {
-                const QVariant &drms_value = drms_designRegistrationData[i];
 
                 // Verificar si el valor de drms está en la lista de "Project Number" de booms
                 if (booms_projectNumberData[0] == drms_designRegistrationData[i]) {
@@ -198,7 +204,7 @@ void TaskProccessDocuments::run(){
 
 
                     // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
-                    for (const QString &columnName : drms_columnDataMap.keys()) {
+                    for (const QString &columnName : drms_datamap_keys) {
                         // Obtener la lista de datos de la columna actual
                         QList<QVariant> columnData = drms_columnDataMap[columnName];
 
@@ -223,6 +229,8 @@ void TaskProccessDocuments::run(){
 
         }
 
+        QStringList matching_datamap_keys = matchingDataMap.keys();
+
 
         // Path of the new file
         QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -238,13 +246,13 @@ void TaskProccessDocuments::run(){
 
         int rowIndex = 2; // Comenzar en la fila 2 para dejar espacio para encabezados
 
-        foreach (const QString &columnName, matchingDataMap.keys()) {
-            xlsx.write(1, matchingDataMap.keys().indexOf(columnName) + 1, columnName);
+        foreach (const QString &columnName, matching_datamap_keys) {
+            xlsx.write(1, matching_datamap_keys.indexOf(columnName) + 1, columnName);
             QList<QVariant> columnData = matchingDataMap[columnName];
 
             for (int i = 0; i < columnData.size(); ++i) {
 
-                xlsx.write(rowIndex, matchingDataMap.keys().indexOf(columnName) + 1, columnData[i]);
+                xlsx.write(rowIndex, matching_datamap_keys.indexOf(columnName) + 1, columnData[i]);
                 ++rowIndex;
 
 
@@ -252,6 +260,8 @@ void TaskProccessDocuments::run(){
             rowIndex = 2;
 
         }
+
+
 
 
         xlsx.setColumnWidth(1, 30);
@@ -271,14 +281,14 @@ void TaskProccessDocuments::run(){
 
 
 
-
-
-
-
     }
 
     else {
-        qDebug() << "The booms document have not charged correctly";
+        QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
+                                  Q_ARG(QString, "The booms document have not charged correctly"),
+                                  Q_ARG(int, 0));
+
+
     }
 
 
