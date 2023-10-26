@@ -128,6 +128,19 @@ void TaskProccessDocuments::run(){
 
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
+            QString creator = boomDocument->documentProperty(QStringLiteral("Last Author"));
+
+            qDebug() << "the creator is : " << creator;
+
+            QString created = boomDocument->documentProperty("created");
+            qDebug() << "the created is : " << created;
+
+            QStringList docprop = boomDocument->documentPropertyNames();
+            qDebug() << "the list of propertys is : " << docprop;
+
+
+
+
 
             if(start){
 
