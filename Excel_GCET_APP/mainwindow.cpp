@@ -14,7 +14,6 @@
 
 
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -204,12 +203,8 @@ void MainWindow::on_button_export_clicked()
     }
     else{
         // StatusBar error message
-        ui->statusBar->showMessage("Error to export the file");
+        ui->statusBar->showMessage("Error to export: One or more documents is missing");
     }
-
-
-
-
 
 }
 
@@ -373,8 +368,6 @@ void MainWindow::update_export_section(int progres_value, bool state)
 void MainWindow::update_projects_ID(QList<QVariant> booms_columnsID){
 
 
-
-
     for (const QVariant& variant : booms_columnsID) {
         if (variant.canConvert<QString>()) {
 
@@ -389,15 +382,7 @@ void MainWindow::update_projects_ID(QList<QVariant> booms_columnsID){
         }
     }
 
-    //qDebug() <<"List of IDs" << projects_ID;
-
-
-
-
-
-
 }
-
 
 
 void MainWindow::update_statusBar(QString message, int time){

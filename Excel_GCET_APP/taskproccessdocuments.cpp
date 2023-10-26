@@ -4,8 +4,8 @@
 #include <QStandardPaths>
 
 
-TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QStringList export_path, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents )
-    : mId(id), mfile_paths(export_path), mdrms_document(drms_document), mbooms_documents(booms_documents),  mainWindow(window)
+TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QStringList file_paths, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents )
+    : mId(id), mfile_paths(file_paths), mdrms_document(drms_document), mbooms_documents(booms_documents),  mainWindow(window)
 {
     // Constructor
 }
@@ -39,12 +39,14 @@ void TaskProccessDocuments::run(){
 
 
 
-    QStringList booms_column_names_to_find = {"Project Number", "Part Number", };
+    QStringList booms_column_names_to_find = {"Project Number", "Part Number" };
 
     // Start a map to store the values of each document
     QMap<QString, QList<QVariant>> drms_columnDataMap;
     QMap<QString, QList<QVariant>> booms_columnDataMap;
     QMap<QString, QList<QVariant>> matchingDataMap;
+
+    //matchingDataMap["Boom file Name"];
 
     QList<int> rowIndexes;
     int progress_value = 0;
@@ -104,6 +106,9 @@ void TaskProccessDocuments::run(){
     // Obtener las listas de datos de las columnas que deseas comparar
     QList<QVariant> drms_designRegistrationData = drms_columnDataMap["Design Registration Project id"];
     QList drms_datamap_keys = drms_columnDataMap.keys();
+    drms_datamap_keys.append("Boom file Name");
+
+    qDebug() << "Key names = " << drms_datamap_keys;
 
     int name = 0;
     bool start = false;
@@ -114,6 +119,7 @@ void TaskProccessDocuments::run(){
         QFileInfo fileInfo(filePath);
         QString fileName = fileInfo.fileName();
         fileNames.append(fileName);
+
     }
 
 
@@ -122,23 +128,22 @@ void TaskProccessDocuments::run(){
 
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
+
             if(start){
 
                 // Agregar una fila en blanco
                 for (const QString &columnName : drms_datamap_keys) {
                     matchingDataMap[columnName].append(QVariant());
+                    //matchingDataMap["Boom file Name"].append(QVariant());
+                }
+                // Agregar las keys
+                for (const QString &columnName : drms_datamap_keys) {
+
+                    matchingDataMap[columnName].append(columnName);
+
                 }
             }
 
-            // Agregar el nombre del archivo boom
-            for (const QString &columnName : drms_datamap_keys) {
-
-                if(columnName != drms_datamap_keys.first()){
-                    matchingDataMap[columnName].append("");
-                }
-                else{matchingDataMap[columnName].append(fileNames[name]);}
-            }
-            ++name;
 
 
 
@@ -179,6 +184,12 @@ void TaskProccessDocuments::run(){
                     // Almacenar los datos de la columna en el mapa
                     booms_columnDataMap[desiredColumnName] = booms_columnData;
 
+//                    int rowsize_boom = booms_columnDataMap[desiredColumnName].size();
+
+//                    for (int var = 0; var < rowsize_boom; ++var) {
+//                        matchingDataMap["Boom file Name"].append(fileNames[name]);
+//                    }
+
 
 
                 }
@@ -199,14 +210,23 @@ void TaskProccessDocuments::run(){
             for (int i = 0; i < drms_designRegistrationData.size(); ++i) {
 
                 // Verificar si el valor de drms está en la lista de "Project Number" de booms
-                if (booms_projectNumberData[0] == drms_designRegistrationData[i]) {
+                if (booms_projectNumberData[1] == drms_designRegistrationData[i]) {
                     rowIndexes.append(i);
 
 
                     // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
                     for (const QString &columnName : drms_datamap_keys) {
+                        qDebug() << "Name of the columns drms keys" << columnName;
                         // Obtener la lista de datos de la columna actual
                         QList<QVariant> columnData = drms_columnDataMap[columnName];
+
+                        if(columnName == "Boom file Name"){
+                            matchingDataMap[columnName].append(fileNames[name]);
+
+                            qDebug() << "bom name in";
+
+                        }
+                        else{qDebug() << "bom name not in";}
 
                         // Verificar si el índice es válido para esta columna
                         if (i < columnData.size()) {
@@ -215,12 +235,18 @@ void TaskProccessDocuments::run(){
 
                             // Agregar el valor al mapa de datos coincidentes
                             matchingDataMap[columnName].append(cellValue);
+
+
+
+
+
                         }
                     }
 
                 }
 
             }
+            ++name;
 
 
             start = true;

@@ -14,7 +14,7 @@
 class TaskProccessDocuments : public QRunnable
 {
 public:
-    TaskProccessDocuments(QMainWindow* mainWindow, char id, QStringList export_path, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents);
+    TaskProccessDocuments(QMainWindow* mainWindow, char id, QStringList file_paths, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents);
     ~TaskProccessDocuments();
 
 
