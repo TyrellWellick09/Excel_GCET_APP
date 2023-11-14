@@ -16,9 +16,10 @@ class TaskProccessDocuments : public QRunnable
 public:
     TaskProccessDocuments(QMainWindow* mainWindow, char id, QStringList file_paths, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents);
     ~TaskProccessDocuments();
-
-
+    
+    
 protected:
+    void extracted(QList<QMap<QString, QList<QVariant>>> &dataMapList);
     void run();
 
 private:
