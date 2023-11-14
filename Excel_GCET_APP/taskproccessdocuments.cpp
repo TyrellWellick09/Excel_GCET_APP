@@ -4,7 +4,6 @@
 #include <QHash>
 #include <QStandardPaths>
 
-
 TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QStringList file_paths, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents )
     : mId(id), mfile_paths(file_paths), mdrms_document(drms_document), mbooms_documents(booms_documents),  mainWindow(window)
 {
@@ -38,8 +37,6 @@ void TaskProccessDocuments::run(){
                                              "FAE Name",
                                              "AM Name"};
 
-
-
     QStringList booms_column_names_to_find = {"Project Number", "Part Number" };
 
     // Start a map to store the values of each document
@@ -64,14 +61,11 @@ void TaskProccessDocuments::run(){
     QList<int> rowIndexes;
     int progress_value = 0;
 
-
     //qDebug() << "Export Proccess start";
 
     QMetaObject::invokeMethod(mainWindow, "update_export_section", Qt::QueuedConnection,
                               Q_ARG(int, progress_value),
                               Q_ARG(bool, true));
-
-
 
     if (!mdrms_document->isEmpty()) {
         QXlsx::Worksheet *drms_worksheet = mdrms_document->at(0)->currentWorksheet();
@@ -107,7 +101,6 @@ void TaskProccessDocuments::run(){
 
         //qDebug() << "DRMS Proccessed";
 
-
     }
     else {
         QMetaObject::invokeMethod(mainWindow, "update_statusBar", Qt::QueuedConnection,
@@ -139,21 +132,14 @@ void TaskProccessDocuments::run(){
         QString fileName = fileInfo.baseName();
         fileNames.append(fileName);
 
-
     }
-
-
 
     if (!mbooms_documents->isEmpty()) {
 
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
-
-
             int userNumber = (fileNames[name].right(5)).toInt();
             qDebug() << "Nombre de usuario: " << userNumber;
-
-
 
             QXlsx::Worksheet *booms_worksheet = boomDocument->currentWorksheet();
             QStringList booms_columns; // Store the names of the columns
@@ -179,17 +165,12 @@ void TaskProccessDocuments::run(){
                     for (int row = 2; row <= booms_worksheet_dimention; ++row) {
                         QVariant booms_cellData = booms_worksheet->read(row, booms_columnIndex + 1); // +1 porque las columnas comienzan desde 1
                         booms_columnData.append(booms_cellData);
-
                     }
 
                     // Almacenar los datos de la columna en el mapa
                     booms_columnDataMap[desiredColumnName] = booms_columnData;
-
-
-
                 }
             }
-
 
 
             QList<QVariant> booms_projectNumberData = booms_columnDataMap["Project Number"];
@@ -291,7 +272,6 @@ void TaskProccessDocuments::run(){
                                             }
                                         }
 
-
                                         // Verificar si el índice es válido para esta columna
                                         if (i < columnData.size()) {
                                             // Obtener el valor en ese índice
@@ -339,8 +319,6 @@ void TaskProccessDocuments::run(){
                                                 break;
                                                 \
                                             }
-
-
                                         }
                                     }
                                 }
@@ -348,21 +326,11 @@ void TaskProccessDocuments::run(){
                         }
                         else{qDebug() << "Not coincidence part";}
                     }
-
                 }
-
-
 
             }
             ++name;
-
-
-
-            //start = true;
-
-
         }
-
 
 
         // Path of the new file
@@ -372,114 +340,16 @@ void TaskProccessDocuments::run(){
         QXlsx::Document xlsx;
 
 
-
-
-
-
-
-
-
-
-        // Agrega punteros a los QMap a la lista
-
-        dataMapList.append(dataMapEnrique); // 2
-        dataMapList.append(dataMapAlberto); // 3
-        dataMapList.append(dataMapRafael); // 2
-        //        dataMapList.append(dataMapJose); // 3
-        //        dataMapList.append(dataMapMitsuki); // 2
-        //        dataMapList.append(dataMapAndres); // 2
-        //        dataMapList.append(dataMapFernando); //3
-        //        dataMapList.append(dataMapAugusto); //4
-        dataMapList.append(dataMapNotOwner); // 5
-
-        //        dataMapList.append(&dataMapEnrique);
-        //        dataMapList.append(&dataMapAlberto);
-        //        dataMapList.append(&dataMapJose);
-        //        dataMapList.append(&dataMapMitsuki);
-        //        dataMapList.append(&dataMapAndres);
-        //        dataMapList.append(&dataMapFernando);
-        //        dataMapList.append(&dataMapAugusto);
-        //        dataMapList.append(&dataMapNotOwner);
-
-        //qDebug() << "QMAP matchingDataMap: " << matchingDataMap;
-        //qDebug() << "QMAP dataMapAlberto: " << dataMapAlberto;
-
-
-
-
-
-
-
-
-        //        int rowIndex = 2; // Comenzar en la fila 2 para dejar espacio para encabezados
-
-        //        qDebug() << "Start foreach";
-
-        //        int rowFile = 0;
-        //        int row = 2;
-        //        bool startWrite = false;
-
-
-
-        //        for (const QMap<QString, QList<QVariant>> &mapPtr : dataMapList) {
-
-        //            QStringList dataMapkeys = mapPtr.keys();
-
-        //            if(startWrite){
-
-        //            rowIndex += 2;
-        //            rowIndex += rowFile;
-        //            row = rowIndex;
-
-        //            foreach (const QString &columnName, dataMapkeys) {
-
-        //                xlsx.write(row-1, dataMapkeys.indexOf(columnName) + 1, columnName);
-        //            }
-
-
-        //            }
-        //            else{}
-
-
-
-        //            foreach (const QString &columnName, dataMapkeys) {
-        //                if(startWrite == false){
-        //                    xlsx.write(1, dataMapkeys.indexOf(columnName) + 1, columnName);
-        //                qDebug() << "First into";
-        //                }
-        //                //xlsx.write(1, dataMapkeys.indexOf(columnName) + 1, columnName);
-        //                qDebug() << "dataMapkeys.indexOf(columnName): " << dataMapkeys.indexOf(columnName);
-
-        //                QList<QVariant> columnData = dataMapEnrique[columnName];
-        //                rowFile = columnData.size();
-
-
-        //                for (int i = 0; i < columnData.size(); ++i) {
-
-        //                    xlsx.write(row, dataMapkeys.indexOf(columnName) + 1, columnData[i]);
-        //                    ++row;
-
-
-        //                }
-        //                row = rowIndex;
-
-        //            }
-        //            startWrite = true;
-
-        //            //rowIndex += 2;
-
-        //        }
-
-        //        qDebug() << "qmap Enrique: " << dataMapEnrique;
-        //        qDebug() << "qmap Alberto: " << dataMapAlberto;
-        //        qDebug() << "qmap Rafael: " << dataMapRafael;
-        //        qDebug() << "qmap not ow: " << dataMapNotOwner;
-        //        qDebug() << "qlistmap: " << dataMapList;
-
-
-
-
-
+        // Agrega Listas a los QMap a la lista
+        dataMapList.append(dataMapEnrique);
+        dataMapList.append(dataMapAlberto);
+        dataMapList.append(dataMapRafael);
+        dataMapList.append(dataMapJose);
+        dataMapList.append(dataMapMitsuki);
+        dataMapList.append(dataMapAndres);
+        dataMapList.append(dataMapFernando);
+        dataMapList.append(dataMapAugusto);
+        dataMapList.append(dataMapNotOwner);
 
         int rowIndex = 1; // Comenzar en la fila 2 para dejar espacio para encabezados
 
@@ -534,11 +404,6 @@ void TaskProccessDocuments::run(){
             rowIndex += columnNames.isEmpty() ? 1 : currentMap[columnNames[0]].size();
         }
 
-
-
-
-
-
         xlsx.setColumnWidth(1, 20); // AM Name
         xlsx.setColumnWidth(2, 15); // Annual value
         xlsx.setColumnWidth(3, 15); // Approved Date
@@ -558,9 +423,6 @@ void TaskProccessDocuments::run(){
         xlsx.setColumnWidth(17, 15); // Status Text
         xlsx.setColumnWidth(18, 15); // Supplier
 
-
-
-
         xlsx.saveAs(filePath);
 
         qDebug() << "Archivo Excel guardado en:" << filePath;
@@ -569,8 +431,6 @@ void TaskProccessDocuments::run(){
                                   Q_ARG(int, progress_value),
                                   Q_ARG(bool, false));
 
-
-
     }
 
     else {
@@ -578,14 +438,6 @@ void TaskProccessDocuments::run(){
                                   Q_ARG(QString, "The booms document have not charged correctly"),
                                   Q_ARG(int, 0));
 
-
     }
 
-
-
-
 }
-
-
-
-
