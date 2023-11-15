@@ -56,6 +56,8 @@ void TaskProccessDocuments::run(){
     QList<QMap<QString, QList<QVariant>>*> dataMapListPtr;
     QList<QMap<QString, QList<QVariant>>> dataMapList;
 
+    QMap<QString, QMap<QString, QList<QVariant>>> dataMapMap;
+
     //matchingDataMap["Boom file Name"];
 
     QList<int> rowIndexes;
@@ -338,7 +340,29 @@ void TaskProccessDocuments::run(){
         QString filePath = desktopPath + "/nuevo_archivo.xlsx";
 
         QXlsx::Document xlsx;
+        // "Annual value"
 
+        // Get the total approved registers by engineer
+        QMap<QString, double> annualValue_by_engineer;
+
+
+
+
+        // Get the total approved registers by engineer
+
+
+        // add to the map of maps
+        dataMapMap["Enrique"] = dataMapEnrique;
+        dataMapMap["Alberto"] = dataMapAlberto;
+        dataMapMap["Rafael"] = dataMapRafael;
+        dataMapMap["Jose"] = dataMapJose;
+        dataMapMap["Mitsuki"] = dataMapMitsuki;
+        dataMapMap["Andres"] = dataMapAndres;
+        dataMapMap["Fernando"] = dataMapFernando;
+        dataMapMap["Augusto"] = dataMapAugusto;
+        dataMapMap["NotOwner"] = dataMapNotOwner;
+
+        QList dataMapMap_keys = dataMapMap.keys();
 
         // Agrega Listas a los QMap a la lista
         dataMapList.append(dataMapEnrique);
@@ -351,58 +375,120 @@ void TaskProccessDocuments::run(){
         dataMapList.append(dataMapAugusto);
         dataMapList.append(dataMapNotOwner);
 
+        // Get the annual value by engineer
+        qDebug() << "Start for";
+        for (const QString &name : dataMapMap_keys) {
+            const QMap<QString, QList<QVariant>> &innerMap = dataMapMap.value(name);
+            qDebug() << "in 1rst for";
+
+
+            // Iterar sobre el QMap interno
+            foreach (const QString &columnName, innerMap.keys()) {
+                qDebug() << "in 2cond for";
+                qDebug() << "columnname: "<< columnName;
+
+
+                if (columnName == "Annual value") {
+                    const QList<QVariant> &columnData = innerMap.value(columnName);
+                    qDebug() << "in if";
+
+
+                    // Sumar las cantidades de "Annual Value"
+                    double totalAnnualValue = 0.0;
+                    foreach (const QVariant &data, columnData) {
+                        qDebug() << "data : " << data;
+                        totalAnnualValue += data.toDouble();
+                        qDebug() << "total AnnualValue : " << totalAnnualValue;
+                    }
+
+                    // Almacenar el total en el QMap por ingeniero
+                    annualValue_by_engineer[name] += totalAnnualValue;
+                }
+            }
+        }
+
+        qDebug() << "Enrique Qmap: " << dataMapEnrique;
+        qDebug() << "Alberto Qmap: " << dataMapAlberto;
+
+
+
+
+
         int rowIndex = 1; // Comenzar en la fila 2 para dejar espacio para encabezados
 
         for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
             // Obtén el QMap actual
             QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
 
-            // Itera sobre las claves (nombres de las columnas) en el QMap
-            QStringList columnNames = currentMap.keys();
+            qDebug() << "For number: " << mapIndex;
 
-            if (mapIndex > 0) {
-                // Si no es el primer QMap, agrega una fila en blanco
-                rowIndex++;
-            }
+            if(!currentMap.isEmpty()){
 
-            foreach (const QString &columnName, columnNames) {
-                // Si no es el primer QMap, agrega los nombres de las columnas
+                // Itera sobre las claves (nombres de las columnas) en el QMap
+                QStringList columnNames = currentMap.keys();
 
-                xlsx.write(rowIndex, columnNames.indexOf(columnName) + 1, columnName);
+                if (mapIndex > 0) {
+                    // Si no es el primer QMap, agrega una fila en blanco
+                    rowIndex++;
+                }
 
-            }
+                foreach (const QString &columnName, columnNames) {
+                    // Si no es el primer QMap, agrega los nombres de las columnas
 
-            // Aumenta el índice de la primera fila para el QMap actual si no es el último QMap
-            if (mapIndex < dataMapList.size() - 1) {
-                rowIndex++;
-            }
+                    xlsx.write(rowIndex, columnNames.indexOf(columnName) + 1, columnName);
+                    qDebug() << "Column name first: " << columnName;
 
-            foreach (const QString &columnName, columnNames) {
-                // Obtén la lista de datos de la columna actual
-                QList<QVariant> columnData = currentMap[columnName];
+                }
 
-                // Realiza la conversión de fechas si la columna se llama "approved date"
-                if ((columnName == "Approved Date") || (columnName == "Design Registration Win/Winbuy Date") || (columnName == "Date Design Registration Submitted") ) {
-                    for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
-                        QVariant data = columnData[dataRowIndex];
-                        if(!data.isNull()){
-                            double numericDate = columnData[dataRowIndex].toDouble();
-                            QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
-                            QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
-                            columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
+                // Aumenta el índice de la primera fila para el QMap actual si no es el último QMap
+                if (mapIndex < dataMapList.size() - 1) {
+                    rowIndex++;
+                }
+
+                foreach (const QString &columnName, columnNames) {
+                    // Obtén la lista de datos de la columna actual
+                    QList<QVariant> columnData = currentMap[columnName];
+
+                    // Realiza la conversión de fechas si la columna se llama "approved date"
+                    if ((columnName == "Approved Date") || (columnName == "Design Registration Win/Winbuy Date") || (columnName == "Date Design Registration Submitted") ) {
+                        for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
+                            QVariant data = columnData[dataRowIndex];
+                            if(!data.isNull()){
+                                double numericDate = columnData[dataRowIndex].toDouble();
+                                QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
+                                QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
+                                columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
+                            }
                         }
+                    }
+
+                    // Itera sobre los datos de la columna y escríbelos en el archivo Excel
+                    for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
+                        xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
+                        qDebug() << "Data print : " << columnData[dataRowIndex];
                     }
                 }
 
-                // Itera sobre los datos de la columna y escríbelos en el archivo Excel
-                for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
-                    xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
-                }
+                // Aumenta el índice de la primera fila para el próximo QMap
+                rowIndex += columnNames.isEmpty() ? 1 : currentMap[columnNames[0]].size();
             }
-
-            // Aumenta el índice de la primera fila para el próximo QMap
-            rowIndex += columnNames.isEmpty() ? 1 : currentMap[columnNames[0]].size();
         }
+
+        QMap<QString, int> registers_by_engineer;
+        registers_by_engineer["Enrique"]=dataMapEnrique["Status Text"].size();
+        registers_by_engineer["Alberto"] = dataMapAlberto["Status Text"].size();
+        registers_by_engineer["Rafael"] = dataMapRafael["Status Text"].size();
+        registers_by_engineer["Jose"] = dataMapJose["Status Text"].size();
+        registers_by_engineer["Mitsuki"] = dataMapMitsuki["Status Text"].size();
+        registers_by_engineer["Andres"] = dataMapAndres["Status Text"].size();
+        registers_by_engineer["Fernando"] = dataMapFernando["Status Text"].size();
+        registers_by_engineer["Augusto"] = dataMapAugusto["Status Text"].size();
+        registers_by_engineer["NotOwner"] = dataMapNotOwner["Status Text"].size();
+
+        qDebug() << "Register by engineer: " << registers_by_engineer;
+        qDebug() << "Annual value: " << annualValue_by_engineer;
+
+
 
         xlsx.setColumnWidth(1, 20); // AM Name
         xlsx.setColumnWidth(2, 15); // Annual value
