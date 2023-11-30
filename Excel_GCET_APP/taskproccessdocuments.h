@@ -16,6 +16,8 @@ class TaskProccessDocuments : public QRunnable
 public:
     TaskProccessDocuments(QMainWindow* mainWindow, char id, QStringList file_paths, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents);
     ~TaskProccessDocuments();
+
+
     
     
 protected:
@@ -28,6 +30,7 @@ private:
     QList<QXlsx::Document*>* mdrms_document;
     QList<QXlsx::Document*>* mbooms_documents;
     QMainWindow* mainWindow;
+    void process_date(QVariant drms_date, QVariant *init_date, QVariant *end_date);
 
 
 };

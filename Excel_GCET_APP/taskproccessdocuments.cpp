@@ -140,8 +140,15 @@ void TaskProccessDocuments::run(){
 
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
+            QString fileNamePrint = fileNames[name];
+            qDebug() << "Nombre del archivo: " << fileNamePrint;
             int userNumber = (fileNames[name].right(5)).toInt();
             qDebug() << "Nombre de usuario: " << userNumber;
+
+            int nameFileSize = fileNames[name].length();
+
+            int creationDate = (fileNames[name].mid(nameFileSize - 18, 6)).toInt();
+            qDebug() << "Fecha de creacion del boom : " << creationDate;
 
             QXlsx::Worksheet *booms_worksheet = boomDocument->currentWorksheet();
             QStringList booms_columns; // Store the names of the columns
@@ -334,6 +341,16 @@ void TaskProccessDocuments::run(){
             ++name;
         }
 
+        // Declaration of the variables of statistics
+
+        int total_registers = 0;
+        double total_annualvalue = 0.0;
+        QVariant init_date = "";
+        QVariant end_date = "";
+        QMap<QString, int> registers_by_engineer;
+        QMap<QString, double> annualValue_by_engineer; // Get the total approved registers by engineer
+
+
 
         // Path of the new file
         QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -342,8 +359,7 @@ void TaskProccessDocuments::run(){
         QXlsx::Document xlsx;
         // "Annual value"
 
-        // Get the total approved registers by engineer
-        QMap<QString, double> annualValue_by_engineer;
+
 
 
 
@@ -376,39 +392,40 @@ void TaskProccessDocuments::run(){
         dataMapList.append(dataMapNotOwner);
 
         // Get the annual value by engineer
-        qDebug() << "Start for";
+//        qDebug() << "Start for";
         for (const QString &name : dataMapMap_keys) {
             const QMap<QString, QList<QVariant>> &innerMap = dataMapMap.value(name);
-            qDebug() << "in 1rst for";
+//            qDebug() << "in 1rst for";
 
 
             // Iterar sobre el QMap interno
             foreach (const QString &columnName, innerMap.keys()) {
-                qDebug() << "in 2cond for";
-                qDebug() << "columnname: "<< columnName;
+//                qDebug() << "in 2cond for";
+//                qDebug() << "columnname: "<< columnName;
 
 
                 if (columnName == "Annual value") {
                     const QList<QVariant> &columnData = innerMap.value(columnName);
-                    qDebug() << "in if";
+//                    qDebug() << "in if";
 
 
                     // Sumar las cantidades de "Annual Value"
                     double totalAnnualValue = 0.0;
                     foreach (const QVariant &data, columnData) {
-                        qDebug() << "data : " << data;
+//                        qDebug() << "data : " << data;
                         totalAnnualValue += data.toDouble();
-                        qDebug() << "total AnnualValue : " << totalAnnualValue;
+//                        qDebug() << "total AnnualValue : " << totalAnnualValue;
                     }
 
                     // Almacenar el total en el QMap por ingeniero
                     annualValue_by_engineer[name] += totalAnnualValue;
+                    total_annualvalue += totalAnnualValue;
                 }
             }
         }
 
-        qDebug() << "Enrique Qmap: " << dataMapEnrique;
-        qDebug() << "Alberto Qmap: " << dataMapAlberto;
+//        qDebug() << "Enrique Qmap: " << dataMapEnrique;
+//        qDebug() << "Alberto Qmap: " << dataMapAlberto;
 
 
 
@@ -420,7 +437,7 @@ void TaskProccessDocuments::run(){
             // Obtén el QMap actual
             QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
 
-            qDebug() << "For number: " << mapIndex;
+//            qDebug() << "For number: " << mapIndex;
 
             if(!currentMap.isEmpty()){
 
@@ -436,7 +453,7 @@ void TaskProccessDocuments::run(){
                     // Si no es el primer QMap, agrega los nombres de las columnas
 
                     xlsx.write(rowIndex, columnNames.indexOf(columnName) + 1, columnName);
-                    qDebug() << "Column name first: " << columnName;
+//                    qDebug() << "Column name first: " << columnName;
 
                 }
 
@@ -454,10 +471,12 @@ void TaskProccessDocuments::run(){
                         for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
                             QVariant data = columnData[dataRowIndex];
                             if(!data.isNull()){
-                                double numericDate = columnData[dataRowIndex].toDouble();
-                                QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
-                                QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
-                                columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
+                                qDebug() << "Date : " << data;
+                                process_date(data, &init_date, &end_date);
+//                                double numericDate = columnData[dataRowIndex].toDouble();
+//                                QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
+//                                QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
+//                                columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
                             }
                         }
                     }
@@ -465,7 +484,7 @@ void TaskProccessDocuments::run(){
                     // Itera sobre los datos de la columna y escríbelos en el archivo Excel
                     for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
                         xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
-                        qDebug() << "Data print : " << columnData[dataRowIndex];
+//                        qDebug() << "Data print : " << columnData[dataRowIndex];
                     }
                 }
 
@@ -474,19 +493,32 @@ void TaskProccessDocuments::run(){
             }
         }
 
-        QMap<QString, int> registers_by_engineer;
-        registers_by_engineer["Enrique"]=dataMapEnrique["Status Text"].size();
+        registers_by_engineer["Enrique"]= dataMapEnrique["Status Text"].size();
+        total_registers += dataMapEnrique["Status Text"].size();
         registers_by_engineer["Alberto"] = dataMapAlberto["Status Text"].size();
+        total_registers += dataMapAlberto["Status Text"].size();
         registers_by_engineer["Rafael"] = dataMapRafael["Status Text"].size();
+        total_registers += dataMapRafael["Status Text"].size();
         registers_by_engineer["Jose"] = dataMapJose["Status Text"].size();
+        total_registers += dataMapJose["Status Text"].size();
         registers_by_engineer["Mitsuki"] = dataMapMitsuki["Status Text"].size();
+        total_registers += dataMapMitsuki["Status Text"].size();
         registers_by_engineer["Andres"] = dataMapAndres["Status Text"].size();
+        total_registers += dataMapAndres["Status Text"].size();
         registers_by_engineer["Fernando"] = dataMapFernando["Status Text"].size();
+        total_registers += dataMapFernando["Status Text"].size();
         registers_by_engineer["Augusto"] = dataMapAugusto["Status Text"].size();
+        total_registers += dataMapAugusto["Status Text"].size();
         registers_by_engineer["NotOwner"] = dataMapNotOwner["Status Text"].size();
+        total_registers += dataMapNotOwner["Status Text"].size();
 
         qDebug() << "Register by engineer: " << registers_by_engineer;
-        qDebug() << "Annual value: " << annualValue_by_engineer;
+        qDebug() << "Annual value by enginer: " << annualValue_by_engineer;
+        qDebug() << "Total Register: " << total_registers;
+        qDebug() << "Total Annual Value: " << total_annualvalue;
+        qDebug() << "Init date: " << init_date.toString();
+        qDebug() << "End date: " << end_date.toString();
+
 
 
 
@@ -526,4 +558,49 @@ void TaskProccessDocuments::run(){
 
     }
 
+}
+
+
+void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date, QVariant *end_date){
+
+    // Fecha inicial (por ejemplo, 1 de enero de 2000)
+    QDate startDate(2000, 1, 1);
+
+    // String de fecha que quieres convertir
+    QString date = drms_date.toString();
+
+    // Convertir el string a un objeto QDate
+    QDate date_converter = QDate::fromString(date, "yyyy-MM-dd");
+
+
+
+    if (date_converter.isValid()) {
+        // Calcular la diferencia en días
+        int diference_days = startDate.daysTo(date_converter);
+        qDebug() << "Número de días desde la fecha inicial:" << diference_days;
+
+        if(*init_date == ""){
+            *init_date = date_converter;
+            qDebug() << "Start comparacion";
+        }
+
+        else if(*end_date == ""){
+            *end_date = date_converter;
+            qDebug() << "first end date ";}
+
+        else if(init_date->toDate() > date_converter){
+            *init_date = date_converter;
+            qDebug() << "NEW Init Date." << *init_date ;
+        }
+
+        else if(end_date->toDate() < date_converter){
+            *end_date = date_converter;
+            qDebug() << "End end date " << *end_date;
+        }
+
+    } else {
+        qDebug() << "Formato de fecha no válido.";
+        qDebug() << "Fecha." << date_converter ;
+
+    }
 }
