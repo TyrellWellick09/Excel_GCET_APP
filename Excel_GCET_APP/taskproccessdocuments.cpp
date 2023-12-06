@@ -35,7 +35,8 @@ void TaskProccessDocuments::run(){
                                              "Industry",
                                              "Market",
                                              "FAE Name",
-                                             "AM Name"};
+                                             "AM Name",
+                                             "D Created on"};
 
     QStringList booms_column_names_to_find = {"Project Number", "Part Number" };
 
@@ -114,6 +115,7 @@ void TaskProccessDocuments::run(){
     // Obtener las listas de datos de las columnas que deseas comparar
     QList<QVariant> drms_designRegistrationData = drms_columnDataMap["Design Registration Project id"];
     QList<QVariant> drms_statusText = drms_columnDataMap["Status Text"];
+    QList<QVariant> drms_dCreated = drms_columnDataMap["D Created on"];
     QList<QVariant> drms_partNumber = drms_columnDataMap["Part mask with supplier prefix and '*'"];
     QList drms_datamap_keys = drms_columnDataMap.keys();
     QList matching_datamap_keys = matchingDataMap.keys();
@@ -147,8 +149,21 @@ void TaskProccessDocuments::run(){
 
             int nameFileSize = fileNames[name].length();
 
-            int creationDate = (fileNames[name].mid(nameFileSize - 18, 6)).toInt();
-            qDebug() << "Fecha de creacion del boom : " << creationDate;
+            QString creationDateString = (fileNames[name].mid(nameFileSize - 18, 6));
+            //qDebug() << "Fecha de creacion del boom : " << creationDateString;
+
+            creationDateString.push_front("20");
+
+            QDate creationDateBoom = QDate::fromString(creationDateString, "yyyyMMdd");
+
+            //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
+
+
+
+
+
+
+
 
             QXlsx::Worksheet *booms_worksheet = boomDocument->currentWorksheet();
             QStringList booms_columns; // Store the names of the columns
@@ -201,6 +216,23 @@ void TaskProccessDocuments::run(){
                         QVariant drmsPart = drms_partNumber[i];
 
                         if(boomPart == drmsPart){
+
+                            if(i < drms_dCreated.size()){
+                                QVariant dateCreated = drms_dCreated[i];
+                                qDebug() << "date created on : " << drms_dCreated[i];
+
+
+                                QDate fechaReferencia(1900, 1, 1);
+
+                                // Calculamos la fecha sumando el número de días a la fecha de referencia
+                                QDate fechaCalculada = fechaReferencia.addDays(dateCreated.toInt() - 2);
+
+                                // Imprimimos la fecha calculada
+                                qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
+                                qDebug()<< "Fecha drms: " << fechaCalculada;
+//                                if (creationDateBoom <= fechaCalculada) {
+
+
 
                             // Verifica si el índice es válido para la columna "Status text"
                             if (i < drms_statusText.size()) {
@@ -332,6 +364,8 @@ void TaskProccessDocuments::run(){
                                     }
                                 }
                             }
+                            }
+//                            }
                         }
                         else{qDebug() << "Not coincidence part";}
                     }
@@ -604,3 +638,9 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
 
     }
 }
+
+
+
+
+
+
