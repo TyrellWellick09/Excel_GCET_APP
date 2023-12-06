@@ -230,142 +230,143 @@ void TaskProccessDocuments::run(){
                                 // Imprimimos la fecha calculada
                                 qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
                                 qDebug()<< "Fecha drms: " << fechaCalculada;
-//                                if (creationDateBoom <= fechaCalculada) {
+
+                                if (creationDateBoom <= fechaCalculada) {
 
 
 
-                            // Verifica si el índice es válido para la columna "Status text"
-                            if (i < drms_statusText.size()) {
-                                // Accede al valor de la columna "Status text" en el índice i
-                                QVariant statusTextValue = drms_statusText[i];
-                                qDebug() << "Status: " << drms_statusText[i];
+                                    // Verifica si el índice es válido para la columna "Status text"
+                                    if (i < drms_statusText.size()) {
+                                        // Accede al valor de la columna "Status text" en el índice i
+                                        QVariant statusTextValue = drms_statusText[i];
+                                        qDebug() << "Status: " << drms_statusText[i];
 
-                                // Comprueba si el valor es "Approved"
-                                if (statusTextValue.toString() == "Approved") {
-                                    // El valor es "Approved", puedes realizar las acciones que necesites aquí
-
-
-                                    // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
-                                    for (const QString &columnName : drms_datamap_keys) {
-                                        //qDebug() << "Name of the columns drms keys" << columnName;
+                                        // Comprueba si el valor es "Approved"
+                                        if (statusTextValue.toString() == "Approved") {
+                                            // El valor es "Approved", puedes realizar las acciones que necesites aquí
 
 
-                                        // Obtener la lista de datos de la columna actual
-                                        QList<QVariant> columnData = drms_columnDataMap[columnName];
-                                        //qDebug() << "column data: " << columnData;
-
-                                        if(columnName == "Boom file Name" ){
+                                            // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
+                                            for (const QString &columnName : drms_datamap_keys) {
+                                                //qDebug() << "Name of the columns drms keys" << columnName;
 
 
-                                            switch (userNumber) {
-                                            case 61752:
+                                                // Obtener la lista de datos de la columna actual
+                                                QList<QVariant> columnData = drms_columnDataMap[columnName];
+                                                //qDebug() << "column data: " << columnData;
 
-                                                dataMapEnrique["Boom file Name"].append(fileNames[name]);
-                                                dataMapEnrique["GCET Engineer"].append("Enrique");
-                                                qDebug() << "Enrique boom: " << fileNames[name];
-                                                break;
-
-                                            case 55048:
-                                                dataMapAlberto["Boom file Name"].append(fileNames[name]);
-                                                dataMapAlberto["GCET Engineer"].append("Alberto");
-                                                qDebug() << "Alberto boom: " << fileNames[name];
-                                                break;
-
-                                            case 53796:
-                                                dataMapRafael["Boom file Name"].append(fileNames[name]);
-                                                dataMapRafael["GCET Engineer"].append("Rafael");
-                                                qDebug() << "Rafael boom: " << fileNames[name];
-                                                break;
-
-                                            case 56130:
-                                                dataMapJose["Boom file Name"].append(fileNames[name]);
-                                                dataMapJose["GCET Engineer"].append("Jose");
-
-                                                break;
-
-                                            case 61751:
-                                                dataMapMitsuki["Boom file Name"].append(fileNames[name]);
-                                                dataMapMitsuki["GCET Engineer"].append("Mitsuki");
-                                                break;
-
-                                            case 55647:
-                                                dataMapAndres["Boom file Name"].append(fileNames[name]);
-                                                dataMapAndres["GCET Engineer"].append("Andres");
-                                                break;
-
-                                            case 58902:
-                                                dataMapFernando["Boom file Name"].append(fileNames[name]);
-                                                dataMapFernando["GCET Engineer"].append("Fernando");
-                                                break;
-
-                                            case 56461:
-                                                dataMapAugusto["Boom file Name"].append(fileNames[name]);
-                                                dataMapAugusto["GCET Engineer"].append("Augusto");
-                                                break;
-
-                                            default:
-                                                dataMapNotOwner["Boom file Name"].append(fileNames[name]);
-                                                dataMapNotOwner["GCET Engineer"].append("Not Owner");
-                                                qDebug() << "Not owner boom: " << fileNames[name];
-                                                break;
+                                                if(columnName == "Boom file Name" ){
 
 
-                                            }
-                                        }
+                                                    switch (userNumber) {
+                                                    case 61752:
 
-                                        // Verificar si el índice es válido para esta columna
-                                        if (i < columnData.size()) {
-                                            // Obtener el valor en ese índice
-                                            QVariant cellValue  = columnData[i];
+                                                        dataMapEnrique["Boom file Name"].append(fileNames[name]);
+                                                        dataMapEnrique["GCET Engineer"].append("Enrique");
+                                                        qDebug() << "Enrique boom: " << fileNames[name];
+                                                        break;
 
-                                            switch (userNumber) {
-                                            case 61752:
-                                                dataMapEnrique[columnName].append(cellValue);
-                                                qDebug() << "Enrique data: " << cellValue;
-                                                break;
+                                                    case 55048:
+                                                        dataMapAlberto["Boom file Name"].append(fileNames[name]);
+                                                        dataMapAlberto["GCET Engineer"].append("Alberto");
+                                                        qDebug() << "Alberto boom: " << fileNames[name];
+                                                        break;
 
-                                            case 55048:
-                                                dataMapAlberto[columnName].append(cellValue);
-                                                qDebug() << "Alberto data: " << cellValue;
-                                                break;
+                                                    case 53796:
+                                                        dataMapRafael["Boom file Name"].append(fileNames[name]);
+                                                        dataMapRafael["GCET Engineer"].append("Rafael");
+                                                        qDebug() << "Rafael boom: " << fileNames[name];
+                                                        break;
 
-                                            case 53796:
-                                                dataMapRafael[columnName].append(cellValue);
-                                                qDebug() << "Rafael data: " << cellValue;
-                                                break;
+                                                    case 56130:
+                                                        dataMapJose["Boom file Name"].append(fileNames[name]);
+                                                        dataMapJose["GCET Engineer"].append("Jose");
 
-                                            case 56130:
-                                                dataMapJose[columnName].append(cellValue);
-                                                break;
+                                                        break;
 
-                                            case 61751:
-                                                dataMapMitsuki[columnName].append(cellValue);
-                                                break;
+                                                    case 61751:
+                                                        dataMapMitsuki["Boom file Name"].append(fileNames[name]);
+                                                        dataMapMitsuki["GCET Engineer"].append("Mitsuki");
+                                                        break;
 
-                                            case 55647:
-                                                dataMapAndres[columnName].append(cellValue);
-                                                break;
+                                                    case 55647:
+                                                        dataMapAndres["Boom file Name"].append(fileNames[name]);
+                                                        dataMapAndres["GCET Engineer"].append("Andres");
+                                                        break;
 
-                                            case 58902:
-                                                dataMapFernando[columnName].append(cellValue);
-                                                break;
+                                                    case 58902:
+                                                        dataMapFernando["Boom file Name"].append(fileNames[name]);
+                                                        dataMapFernando["GCET Engineer"].append("Fernando");
+                                                        break;
 
-                                            case 56461:
-                                                dataMapAugusto[columnName].append(cellValue);
-                                                break;
+                                                    case 56461:
+                                                        dataMapAugusto["Boom file Name"].append(fileNames[name]);
+                                                        dataMapAugusto["GCET Engineer"].append("Augusto");
+                                                        break;
 
-                                            default:
-                                                dataMapNotOwner[columnName].append(cellValue);
-                                                qDebug() << "NotOwner data: " << cellValue;
-                                                break;
-                                                \
+                                                    default:
+                                                        dataMapNotOwner["Boom file Name"].append(fileNames[name]);
+                                                        dataMapNotOwner["GCET Engineer"].append("Not Owner");
+                                                        qDebug() << "Not owner boom: " << fileNames[name];
+                                                        break;
+
+
+                                                    }
+                                                }
+
+                                                // Verificar si el índice es válido para esta columna
+                                                if (i < columnData.size()) {
+                                                    // Obtener el valor en ese índice
+                                                    QVariant cellValue  = columnData[i];
+
+                                                    switch (userNumber) {
+                                                    case 61752:
+                                                        dataMapEnrique[columnName].append(cellValue);
+                                                        qDebug() << "Enrique data: " << cellValue;
+                                                        break;
+
+                                                    case 55048:
+                                                        dataMapAlberto[columnName].append(cellValue);
+                                                        qDebug() << "Alberto data: " << cellValue;
+                                                        break;
+
+                                                    case 53796:
+                                                        dataMapRafael[columnName].append(cellValue);
+                                                        qDebug() << "Rafael data: " << cellValue;
+                                                        break;
+
+                                                    case 56130:
+                                                        dataMapJose[columnName].append(cellValue);
+                                                        break;
+
+                                                    case 61751:
+                                                        dataMapMitsuki[columnName].append(cellValue);
+                                                        break;
+
+                                                    case 55647:
+                                                        dataMapAndres[columnName].append(cellValue);
+                                                        break;
+
+                                                    case 58902:
+                                                        dataMapFernando[columnName].append(cellValue);
+                                                        break;
+
+                                                    case 56461:
+                                                        dataMapAugusto[columnName].append(cellValue);
+                                                        break;
+
+                                                    default:
+                                                        dataMapNotOwner[columnName].append(cellValue);
+                                                        qDebug() << "NotOwner data: " << cellValue;
+                                                        break;
+                                                        \
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                            }
-//                            }
                         }
                         else{qDebug() << "Not coincidence part";}
                     }
@@ -426,29 +427,29 @@ void TaskProccessDocuments::run(){
         dataMapList.append(dataMapNotOwner);
 
         // Get the annual value by engineer
-//        qDebug() << "Start for";
+        //        qDebug() << "Start for";
         for (const QString &name : dataMapMap_keys) {
             const QMap<QString, QList<QVariant>> &innerMap = dataMapMap.value(name);
-//            qDebug() << "in 1rst for";
+            //            qDebug() << "in 1rst for";
 
 
             // Iterar sobre el QMap interno
             foreach (const QString &columnName, innerMap.keys()) {
-//                qDebug() << "in 2cond for";
-//                qDebug() << "columnname: "<< columnName;
+                //                qDebug() << "in 2cond for";
+                //                qDebug() << "columnname: "<< columnName;
 
 
                 if (columnName == "Annual value") {
                     const QList<QVariant> &columnData = innerMap.value(columnName);
-//                    qDebug() << "in if";
+                    //                    qDebug() << "in if";
 
 
                     // Sumar las cantidades de "Annual Value"
                     double totalAnnualValue = 0.0;
                     foreach (const QVariant &data, columnData) {
-//                        qDebug() << "data : " << data;
+                        //                        qDebug() << "data : " << data;
                         totalAnnualValue += data.toDouble();
-//                        qDebug() << "total AnnualValue : " << totalAnnualValue;
+                        //                        qDebug() << "total AnnualValue : " << totalAnnualValue;
                     }
 
                     // Almacenar el total en el QMap por ingeniero
@@ -458,8 +459,8 @@ void TaskProccessDocuments::run(){
             }
         }
 
-//        qDebug() << "Enrique Qmap: " << dataMapEnrique;
-//        qDebug() << "Alberto Qmap: " << dataMapAlberto;
+        //        qDebug() << "Enrique Qmap: " << dataMapEnrique;
+        //        qDebug() << "Alberto Qmap: " << dataMapAlberto;
 
 
 
@@ -471,7 +472,7 @@ void TaskProccessDocuments::run(){
             // Obtén el QMap actual
             QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
 
-//            qDebug() << "For number: " << mapIndex;
+            //            qDebug() << "For number: " << mapIndex;
 
             if(!currentMap.isEmpty()){
 
@@ -487,7 +488,7 @@ void TaskProccessDocuments::run(){
                     // Si no es el primer QMap, agrega los nombres de las columnas
 
                     xlsx.write(rowIndex, columnNames.indexOf(columnName) + 1, columnName);
-//                    qDebug() << "Column name first: " << columnName;
+                    //                    qDebug() << "Column name first: " << columnName;
 
                 }
 
@@ -507,10 +508,10 @@ void TaskProccessDocuments::run(){
                             if(!data.isNull()){
                                 qDebug() << "Date : " << data;
                                 process_date(data, &init_date, &end_date);
-//                                double numericDate = columnData[dataRowIndex].toDouble();
-//                                QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
-//                                QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
-//                                columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
+                                //                                double numericDate = columnData[dataRowIndex].toDouble();
+                                //                                QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
+                                //                                QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
+                                //                                columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
                             }
                         }
                     }
@@ -518,7 +519,7 @@ void TaskProccessDocuments::run(){
                     // Itera sobre los datos de la columna y escríbelos en el archivo Excel
                     for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
                         xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
-//                        qDebug() << "Data print : " << columnData[dataRowIndex];
+                        //                        qDebug() << "Data print : " << columnData[dataRowIndex];
                     }
                 }
 
@@ -575,6 +576,70 @@ void TaskProccessDocuments::run(){
         xlsx.setColumnWidth(17, 15); // Status Text
         xlsx.setColumnWidth(18, 15); // Supplier
 
+
+
+        // Agregar una nueva hoja al documento para los stats
+        xlsx.addSheet("Stats");
+
+        // Seleccionar la hoja en la que deseas escribir
+        xlsx.selectSheet("Stats");
+
+
+
+
+
+        xlsx.write(2, 1, "Total Registers");
+        xlsx.write(2, 2, "Total Annual Value");
+        xlsx.write(2, 3, "Start Date");
+        xlsx.write(2, 4, "End Date");
+
+        xlsx.write(10, 1, "Engineer");
+        xlsx.write(10, 2, "Register by Enginer");
+        xlsx.write(10, 3, "Annual Value by Engineer");
+        xlsx.write(10, 4, "Project Name");
+        xlsx.write(10, 5, "Project ID");
+        xlsx.write(10, 6, "Registers");
+        xlsx.write(10, 7, "Annual Value");
+        xlsx.write(10, 8, "Industry");
+
+
+
+
+
+
+        xlsx.write(3, 1, total_registers);
+        xlsx.write(3, 2, total_annualvalue);
+        xlsx.write(3, 3, init_date.toString());
+        xlsx.write(3, 4, end_date.toString());
+
+        // Enginer data
+
+
+
+
+
+
+        xlsx.autosizeColumnWidth(1);
+        xlsx.autosizeColumnWidth(2);
+        xlsx.autosizeColumnWidth(3);
+        xlsx.autosizeColumnWidth(4);
+        xlsx.autosizeColumnWidth(5);
+        xlsx.autosizeColumnWidth(6);
+        xlsx.autosizeColumnWidth(7);
+        xlsx.autosizeColumnWidth(8);
+
+
+
+
+
+
+
+
+
+
+
+
+
         xlsx.saveAs(filePath);
 
         qDebug() << "Archivo Excel guardado en:" << filePath;
@@ -613,7 +678,7 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
         int diference_days = startDate.daysTo(date_converter);
         qDebug() << "Número de días desde la fecha inicial:" << diference_days;
 
-        if(*init_date == ""){
+            if(*init_date == ""){
             *init_date = date_converter;
             qDebug() << "Start comparacion";
         }
@@ -634,10 +699,13 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
 
     } else {
         qDebug() << "Formato de fecha no válido.";
-        qDebug() << "Fecha." << date_converter ;
+            qDebug() << "Fecha." << date_converter ;
 
     }
 }
+
+
+
 
 
 
