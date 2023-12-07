@@ -235,15 +235,15 @@ void TaskProccessDocuments::run(){
 
 
 
-                                    // Verifica si el índice es válido para la columna "Status text"
-                                    if (i < drms_statusText.size()) {
-                                        // Accede al valor de la columna "Status text" en el índice i
-                                        QVariant statusTextValue = drms_statusText[i];
-                                        qDebug() << "Status: " << drms_statusText[i];
+//                                    // Verifica si el índice es válido para la columna "Status text"
+//                                    if (i < drms_statusText.size()) {
+//                                        // Accede al valor de la columna "Status text" en el índice i
+//                                        QVariant statusTextValue = drms_statusText[i];
+//                                        qDebug() << "Status: " << drms_statusText[i];
 
-                                        // Comprueba si el valor es "Approved"
-                                        if (statusTextValue.toString() == "Approved") {
-                                            // El valor es "Approved", puedes realizar las acciones que necesites aquí
+//                                        // Comprueba si el valor es "Approved" New, Denied, Pending, Closed
+//                                        if ((statusTextValue.toString() == "Approved") || (statusTextValue.toString() == "Win") || (statusTextValue.toString() == "Pending")) {
+//                                            // El valor es "Approved", puedes realizar las acciones que necesites aquí
 
 
                                             // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
@@ -362,8 +362,8 @@ void TaskProccessDocuments::run(){
                                                         \
                                                     }
                                                 }
-                                            }
-                                        }
+//                                            }
+//                                        }
                                     }
                                 }
                             }
@@ -392,7 +392,14 @@ void TaskProccessDocuments::run(){
         QString filePath = desktopPath + "/nuevo_archivo.xlsx";
 
         QXlsx::Document xlsx;
+        // Agregar una nueva hoja al documento para los stats
+        xlsx.addSheet("Export");
+
+
         // "Annual value"
+        // Obtener el formato actual de la celda
+        QXlsx::Format formatoMoneda;
+        formatoMoneda.setNumberFormat("$ #,##0.00");
 
 
 
@@ -555,33 +562,55 @@ void TaskProccessDocuments::run(){
         qDebug() << "End date: " << end_date.toString();
 
 
+        xlsx.autosizeColumnWidth(1);
+        xlsx.autosizeColumnWidth(2);
+        xlsx.autosizeColumnWidth(3);
+        xlsx.autosizeColumnWidth(4);
+        xlsx.autosizeColumnWidth(5);
+        xlsx.autosizeColumnWidth(6);
+        xlsx.autosizeColumnWidth(7);
+        xlsx.autosizeColumnWidth(8);
+        xlsx.autosizeColumnWidth(9);
+        xlsx.autosizeColumnWidth(10);
+        xlsx.autosizeColumnWidth(11);
+        xlsx.autosizeColumnWidth(12);
+        xlsx.autosizeColumnWidth(13);
+        xlsx.autosizeColumnWidth(14);
+        xlsx.autosizeColumnWidth(15);
+        xlsx.autosizeColumnWidth(16);
+        xlsx.autosizeColumnWidth(17);
+        xlsx.autosizeColumnWidth(18);
+
+        xlsx.setColumnFormat(2, formatoMoneda);
 
 
-        xlsx.setColumnWidth(1, 20); // AM Name
-        xlsx.setColumnWidth(2, 15); // Annual value
-        xlsx.setColumnWidth(3, 15); // Approved Date
-        xlsx.setColumnWidth(4, 70); // Boom file Name
-        xlsx.setColumnWidth(5, 20); // Customer
-        xlsx.setColumnWidth(6, 30); // Date Design Registration Submitted
-        xlsx.setColumnWidth(7, 30); // Design Registration Project Name
-        xlsx.setColumnWidth(8, 30); // Design Registration Project id
-        xlsx.setColumnWidth(9, 33); // Design Registration Win/Winbuy Date
-        xlsx.setColumnWidth(10, 20); // FAE Name
-        xlsx.setColumnWidth(11, 15); // GCET Engineer
-        xlsx.setColumnWidth(12, 15); // Industry
-        xlsx.setColumnWidth(13, 15); // Market
-        xlsx.setColumnWidth(14, 30); // Name
-        xlsx.setColumnWidth(15, 35); // Part mask with supplier prefix and '*'
-        xlsx.setColumnWidth(16, 15); // Sales Office
-        xlsx.setColumnWidth(17, 15); // Status Text
-        xlsx.setColumnWidth(18, 15); // Supplier
+
+
+        //        xlsx.setColumnWidth(1, 20); // AM Name
+        //        xlsx.setColumnWidth(2, 15); // Annual value
+        //        xlsx.setColumnWidth(3, 15); // Approved Date
+        //        xlsx.setColumnWidth(4, 70); // Boom file Name
+        //        xlsx.setColumnWidth(5, 20); // Customer
+        //        xlsx.setColumnWidth(6, 30); // Date Design Registration Submitted
+        //        xlsx.setColumnWidth(7, 30); // Design Registration Project Name
+        //        xlsx.setColumnWidth(8, 30); // Design Registration Project id
+        //        xlsx.setColumnWidth(9, 33); // Design Registration Win/Winbuy Date
+        //        xlsx.setColumnWidth(10, 20); // FAE Name
+        //        xlsx.setColumnWidth(11, 15); // GCET Engineer
+        //        xlsx.setColumnWidth(12, 15); // Industry
+        //        xlsx.setColumnWidth(13, 15); // Market
+        //        xlsx.setColumnWidth(14, 30); // Name
+        //        xlsx.setColumnWidth(15, 35); // Part mask with supplier prefix and '*'
+        //        xlsx.setColumnWidth(16, 15); // Sales Office
+        //        xlsx.setColumnWidth(17, 15); // Status Text
+        //        xlsx.setColumnWidth(18, 15); // Supplier
 
 
 
-        // Agregar una nueva hoja al documento para los stats
-        xlsx.addSheet("Stats");
 
         // Seleccionar la hoja en la que deseas escribir
+        xlsx.addSheet("Stats");
+
         xlsx.selectSheet("Stats");
 
 
@@ -596,11 +625,13 @@ void TaskProccessDocuments::run(){
         xlsx.write(10, 1, "Engineer");
         xlsx.write(10, 2, "Register by Enginer");
         xlsx.write(10, 3, "Annual Value by Engineer");
-        xlsx.write(10, 4, "Project Name");
-        xlsx.write(10, 5, "Project ID");
-        xlsx.write(10, 6, "Registers");
-        xlsx.write(10, 7, "Annual Value");
+        xlsx.write(10, 4, "File Name");
+        xlsx.write(10, 5, "Annual Value by Project");
+        xlsx.write(10, 6, "Project Name");
+        xlsx.write(10, 7, "FAE");
         xlsx.write(10, 8, "Industry");
+        xlsx.write(10, 9, "Project ID");
+
 
 
 
@@ -608,11 +639,562 @@ void TaskProccessDocuments::run(){
 
 
         xlsx.write(3, 1, total_registers);
-        xlsx.write(3, 2, total_annualvalue);
+        xlsx.write(3, 2, total_annualvalue, formatoMoneda);
         xlsx.write(3, 3, init_date.toString());
         xlsx.write(3, 4, end_date.toString());
 
-        // Enginer data
+
+
+
+        // Definir nombres de columna para la nueva hoja
+        QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name", "FAE Name", "Industry", "Design Registration Project id"};
+        QVariantList idList = dataMapAlberto["Design Registration Project id"];
+        QVariantList revenueList = dataMapAlberto["Annual value"];
+        QVariant idx;
+        QList<int> indexRevenue;
+
+
+
+        // Inicializar el índice de la fila
+        rowIndex = 11; // dataMapEnrique
+        QList<int> rowList;
+        rowList.append(rowIndex);
+
+
+        for(int indexBoom = 0; indexBoom < dataMapAlberto["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapAlberto[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapAlberto["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+
+
+
+                rowIndex++;
+
+            }
+
+
+
+
+            idx = id;
+        }
+
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        revenueList = dataMapAndres["Annual value"];
+        idList = dataMapAndres["Design Registration Project id"];
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapAndres.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapAndres["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapAndres[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapAndres["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        revenueList = dataMapAugusto["Annual value"];
+        idList = dataMapAugusto["Design Registration Project id"];
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapEnrique.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapAugusto["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapAugusto[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapAugusto["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        idList = dataMapEnrique["Design Registration Project id"];
+        revenueList = dataMapEnrique["Annual value"];
+
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapEnrique.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapEnrique["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapEnrique[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapEnrique["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        idList = dataMapFernando["Design Registration Project id"];
+        revenueList = dataMapFernando["Annual value"];
+
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapFernando.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapFernando["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapFernando[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapFernando["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        idList = dataMapJose["Design Registration Project id"];
+        revenueList = dataMapJose["Annual value"];
+
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapJose.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapJose["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapJose[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapJose["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        idList = dataMapMitsuki["Design Registration Project id"];
+        revenueList = dataMapMitsuki["Annual value"];
+
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapMitsuki.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapMitsuki["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapMitsuki[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapMitsuki["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        idList = dataMapNotOwner["Design Registration Project id"];
+        revenueList = dataMapNotOwner["Annual value"];
+
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapNotOwner.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapNotOwner["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapNotOwner[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapNotOwner["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+
+        rowIndex++;
+        rowList.append(rowIndex);
+
+        idList = dataMapRafael["Design Registration Project id"];
+        revenueList = dataMapRafael["Annual value"];
+
+
+        // Inicializar el índice de la fila
+        qDebug() << "dataMapEnrique size = " << dataMapRafael.size();
+
+        for(int indexBoom = 0; indexBoom < dataMapRafael["Design Registration Project id"].size(); indexBoom++ ){
+            QVariant id = idList[indexBoom];
+
+            qDebug() << "id = " << id;
+            qDebug() << "idx = " << idx;
+            qDebug() << "indexBoom = " << indexBoom;
+
+
+
+            if(idx!= id){
+
+                int column = 4;
+                foreach (const QString &columnName, columnNamesSheet2){
+
+                    QList<QVariant> columnData = dataMapRafael[columnName];
+                    QVariant data = columnData[indexBoom];
+                    qDebug() << "data = " << data;
+
+
+
+                    xlsx.write(rowIndex, column, data);
+                    column++;
+
+
+                }
+                double valueSuma = 0;
+                for(int i = 0; i < dataMapRafael["Annual value"].size(); i++){
+                    qDebug() << "id = " << id;
+                    qDebug() << "idlist = " << idList[i];
+                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+                    if(id == idList[i]){
+
+                        valueSuma += revenueList[i].toFloat();
+                    }
+                }
+                xlsx.write(rowIndex, 5, valueSuma);
+                rowIndex++;
+
+            }
+            idx = id;
+        }
+        rowIndex++;
+
+        rowList.append(rowIndex);
+
+        // Enginer data annualValue_by_engineer, registers_by_engineer
+        QStringList engineers_keys = registers_by_engineer.keys();
+        int indexColumn = 0;
+
+        foreach (const QString &columnName, engineers_keys) {
+
+            QVariant registers = registers_by_engineer[columnName];
+            QVariant annualValue = annualValue_by_engineer[columnName];
+
+            xlsx.write(rowList[indexColumn], 1, columnName);
+            xlsx.write(rowList[indexColumn], 2, registers);
+            xlsx.write(rowList[indexColumn], 3, annualValue, formatoMoneda);
+
+            indexColumn++;
+
+
+
+        }
+
+
+
+        //        QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name","FAE Name", "Industry", "Design Registration Project id"};
+
+        //        rowIndex = 11;
+        //        int indexBoom = 3;
+        //        QVariant projectidy;
+
+        //        for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
+        //            // Obtén el QMap actual
+        //            QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
+        //            int currentMapSize = currentMap.size();
+
+        //            if(!currentMap.isEmpty()){
+
+        //                for(indexBoom = 2; indexBoom < currentMapSize; indexBoom++){
+        //                    int column = 4;
+        //                    QVariantList projectid = currentMap["Design Registration Project id"];
+        //                    QVariant projectidx = projectid[indexBoom];
+        //                    qDebug() << "Indexboom:" << indexBoom;
+        //                    qDebug() << "boom size:" << currentMapSize;
+
+        //                    if( (projectidx != projectidy) && !projectidx.isNull()){
+        //                        foreach (const QString &columnName, columnNamesSheet2) {
+        //                            // Obtén la lista de datos de la columna actual
+        //                            QList<QVariant> columnData = currentMap[columnName];
+        //                            QVariant data = columnData[indexBoom];
+
+        //                            xlsx.write(rowIndex, column, data);
+        //                            column++;
+
+
+
+
+        //                        }
+
+        //                        rowIndex++;
+        //                    }
+        //                    projectidy = projectidx;
+
+
+
+        //                }
+
+
+
+        //            }
+        //        }
 
 
 
@@ -627,7 +1209,15 @@ void TaskProccessDocuments::run(){
         xlsx.autosizeColumnWidth(6);
         xlsx.autosizeColumnWidth(7);
         xlsx.autosizeColumnWidth(8);
+        xlsx.autosizeColumnWidth(9);
 
+
+
+
+
+
+        // Aplicar el formato actualizado a la celda
+        xlsx.setColumnFormat(5, formatoMoneda);
 
 
 
@@ -708,7 +1298,73 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
 
 
 
+//    // Definir nombres de columna para la nueva hoja
+//    QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name", "FAE Name", "Industry", "Design Registration Project id"};
+
+//    // Inicializar el índice de la fila
+//    rowIndex = 11;
+
+//    // Variables para controlar la lógica de desbordamiento
+//    QVariant projectidy;
+
+//    // Iterar sobre la lista de mapas
+//    for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
+//            // Obtener el QMap actual
+//            QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
+//            int currentMapSize = currentMap.size();
+
+//            if (!currentMap.isEmpty()) {
+//            // Iterar sobre los datos en el mapa actual
+//            for (int indexBoom = 2; indexBoom < currentMapSize; ++indexBoom) {
+//                // Obtener el proyecto actual
+//                QVariantList projectid = currentMap["Design Registration Project id"];
+
+//                // Verificar que el índice esté dentro del rango antes de acceder
+//                if (indexBoom >= 0 && indexBoom < projectid.size()) {
+//                    QVariant projectidx = projectid[indexBoom];
+
+//                    // Verificar si el proyecto actual es diferente al proyecto anterior y no es nulo
+//                    if ((projectidx != projectidy) && !projectidx.isNull()) {
+//                        // Iterar sobre las columnas y escribir en el archivo Excel
+//                        int column = 4;
+
+//                        foreach (const QString &columnName, columnNamesSheet2) {
+//                            // Obtener la lista de datos de la columna actual
+//                            QList<QVariant> columnData = currentMap[columnName];
+
+//                            // Verificar que el índice esté dentro del rango antes de acceder
+//                            if (indexBoom >= 0 && indexBoom < columnData.size()) {
+//                                QVariant data = columnData[indexBoom];
+
+//                                // Escribir en el archivo Excel
+//                                xlsx.write(rowIndex, column, data);
+//                                column++;
+//                            } else {
+//                                // Manejar el caso en que el índice está fuera de rango
+//                                qWarning() << "Índice de columna fuera de rango";
+//                            }
+//                        }
+
+//                        // Incrementar el índice de la fila
+//                        rowIndex++;
+//                    }
+
+//                    // Actualizar el proyecto anterior
+//                    projectidy = projectidx;
+//                } else {
+//                    // Manejar el caso en que el índice está fuera de rango
+//                    qWarning() << "Índice de proyecto fuera de rango";
+//                }
+//            }
+//            }
+//    }
 
 
+//// Obtener el formato actual de la celda
+//QXlsx::Format formato = xlsx.cellAt("B1")->format();
 
+//// Aplicar formato de moneda al formato actual
+//formato.setNumberFormat(QXlsx::Format::FormatCurrency);
 
+//// Aplicar el formato actualizado a la celda
+//xlsx.cellAt("B1")->setFormat(formato);
