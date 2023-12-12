@@ -54,6 +54,8 @@ void TaskProccessDocuments::run(){
     QMap<QString, QList<QVariant>> dataMapAugusto; // 056461
     QMap<QString, QList<QVariant>> dataMapNotOwner; // number
 
+    QList<int> user_numbers = {61752, 55048, 53796, 56130, 061751, 55647, 58902, 56461};
+
     QList<QMap<QString, QList<QVariant>>*> dataMapListPtr;
     QList<QMap<QString, QList<QVariant>>> dataMapList;
 
@@ -148,15 +150,33 @@ void TaskProccessDocuments::run(){
             qDebug() << "Nombre de usuario: " << userNumber;
 
             int nameFileSize = fileNames[name].length();
+            QDate creationDateBoom;
+            QString creationDateString;
+            if(user_numbers.contains(userNumber)){
+                creationDateString = (fileNames[name].mid(nameFileSize - 18, 6));
+                //qDebug() << "Fecha de creacion del boom : " << creationDateString;
 
-            QString creationDateString = (fileNames[name].mid(nameFileSize - 18, 6));
-            //qDebug() << "Fecha de creacion del boom : " << creationDateString;
+                creationDateString.push_front("20");
 
-            creationDateString.push_front("20");
+                creationDateBoom = QDate::fromString(creationDateString, "yyyyMMdd");
 
-            QDate creationDateBoom = QDate::fromString(creationDateString, "yyyyMMdd");
+                //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
 
-            //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
+            }
+            else{
+
+                creationDateString = (fileNames[name].mid(nameFileSize - 12, 6));
+                //qDebug() << "Fecha de creacion del boom : " << creationDateString;
+
+                creationDateString.push_front("20");
+
+                creationDateBoom = QDate::fromString(creationDateString, "yyyyMMdd");
+
+                //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
+            }
+
+
+
 
 
 
@@ -208,7 +228,7 @@ void TaskProccessDocuments::run(){
                     //qDebug() << "count i : " << drms_designRegistrationData.size();
 
                     // Verificar si el valor de drms está en la lista de "Project Number" de booms
-                    if (booms_projectNumberData[1] == drms_designRegistrationData[i]) {
+                    if (booms_projectNumberData[2] == drms_designRegistrationData[i]) {
                         //qDebug() << "boms column size: " << booms_projectNumberData.size();
                         //qDebug() << "Status column size: " << drms_statusText.size();
                         //() << "i: " << i;
@@ -461,9 +481,12 @@ void TaskProccessDocuments::run(){
 
         int rowIndex = 1; // Comenzar en la fila 2 para dejar espacio para encabezados
 
+        qDebug() << "Test notowner" << dataMapNotOwner.keys();
+
         for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
             // Obtén el QMap actual
             QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
+
 
             //            qDebug() << "For number: " << mapIndex;
 
@@ -477,18 +500,23 @@ void TaskProccessDocuments::run(){
                     rowIndex++;
                 }
 
+                qDebug() << "Qmap to check: " << currentMap;
+
+                qDebug() << "Print of headers: ";
                 foreach (const QString &columnName, columnNames) {
-                    // Si no es el primer QMap, agrega los nombres de las columnas
+                    qDebug() << "rowIndex: "<< rowIndex;
+                    qDebug() << "Column : " << columnNames.indexOf(columnName) + 1;
+                    qDebug() << "columnName: " << columnName;
 
                     xlsx.write(rowIndex, columnNames.indexOf(columnName) + 1, columnName);
-                    //                    qDebug() << "Column name first: " << columnName;
 
                 }
 
                 // Aumenta el índice de la primera fila para el QMap actual si no es el último QMap
-                if (mapIndex < dataMapList.size() - 1) {
+                if (mapIndex < dataMapList.size() ) {
                     rowIndex++;
                 }
+                qDebug() << "rowIndex salto de linea: "<< rowIndex;
 
                 foreach (const QString &columnName, columnNames) {
                     // Obtén la lista de datos de la columna actual
@@ -499,25 +527,25 @@ void TaskProccessDocuments::run(){
                         for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
                             QVariant data = columnData[dataRowIndex];
                             if(!data.isNull()){
-                                qDebug() << "Date : " << data;
+//                                qDebug() << "Date : " << data;
                                 process_date(data, &init_date, &end_date);
-                                //                                double numericDate = columnData[dataRowIndex].toDouble();
-                                //                                QDateTime baseDate = QDateTime::fromString("1900-01-01", "yyyy-MM-dd");
-                                //                                QDateTime correctDate = baseDate.addDays(static_cast<int>(numericDate - 2));
-                                //                                columnData[dataRowIndex] = correctDate.toString("MM/dd/yyyy");
+
                             }
                         }
                     }
 
                     // Itera sobre los datos de la columna y escríbelos en el archivo Excel
                     for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
+                        qDebug() << "rowIndex write: "<< rowIndex;
                         xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
-                        //                        qDebug() << "Data print : " << columnData[dataRowIndex];
+//                                                qDebug() << "Data print : " << columnData[dataRowIndex];
                     }
                 }
 
-                // Aumenta el índice de la primera fila para el próximo QMap
+                // Aumenta el índice de la primera fila para el próximo QMap if else
                 rowIndex += columnNames.isEmpty() ? 1 : currentMap[columnNames[0]].size();
+
+
             }
         }
 
@@ -540,21 +568,26 @@ void TaskProccessDocuments::run(){
 //        registers_by_engineer["NotOwner"] = dataMapNotOwner["Status Text"].size();
 //        total_registers += dataMapNotOwner["Status Text"].size();
 
-        qDebug() << "Register by engineer: " << registers_by_engineer;
-        qDebug() << "Annual value by enginer: " << annualValue_by_engineer;
-        qDebug() << "Total Register: " << total_registers;
-        qDebug() << "Total Annual Value: " << total_annualvalue;
-        qDebug() << "Init date: " << init_date.toString();
-        qDebug() << "End date: " << end_date.toString();
+//        qDebug() << "Register by engineer: " << registers_by_engineer;
+//        qDebug() << "Annual value by enginer: " << annualValue_by_engineer;
+//        qDebug() << "Total Register: " << total_registers;
+//        qDebug() << "Total Annual Value: " << total_annualvalue;
+//        qDebug() << "Init date: " << init_date.toString();
+//        qDebug() << "End date: " << end_date.toString();
 
-        qDebug() << "init format";
+//        qDebug() << "init format";
 
 
         xlsx.autosizeColumnWidth(1);
+//        qDebug() << "xq";
         xlsx.autosizeColumnWidth(2);
+//        qDebug() << "xq";
         xlsx.autosizeColumnWidth(3);
+//        qDebug() << "xq";
         xlsx.autosizeColumnWidth(4);
+//        qDebug() << "xq";
         xlsx.autosizeColumnWidth(5);
+//        qDebug() << "xq";
         xlsx.autosizeColumnWidth(6);
         xlsx.autosizeColumnWidth(7);
         xlsx.autosizeColumnWidth(8);
@@ -569,40 +602,12 @@ void TaskProccessDocuments::run(){
         xlsx.autosizeColumnWidth(17);
         xlsx.autosizeColumnWidth(18);
 
-        xlsx.setColumnFormat(2, formatoMoneda);
-
-
-
-
-        //        xlsx.setColumnWidth(1, 20); // AM Name
-        //        xlsx.setColumnWidth(2, 15); // Annual value
-        //        xlsx.setColumnWidth(3, 15); // Approved Date
-        //        xlsx.setColumnWidth(4, 70); // Boom file Name
-        //        xlsx.setColumnWidth(5, 20); // Customer
-        //        xlsx.setColumnWidth(6, 30); // Date Design Registration Submitted
-        //        xlsx.setColumnWidth(7, 30); // Design Registration Project Name
-        //        xlsx.setColumnWidth(8, 30); // Design Registration Project id
-        //        xlsx.setColumnWidth(9, 33); // Design Registration Win/Winbuy Date
-        //        xlsx.setColumnWidth(10, 20); // FAE Name
-        //        xlsx.setColumnWidth(11, 15); // GCET Engineer
-        //        xlsx.setColumnWidth(12, 15); // Industry
-        //        xlsx.setColumnWidth(13, 15); // Market
-        //        xlsx.setColumnWidth(14, 30); // Name
-        //        xlsx.setColumnWidth(15, 35); // Part mask with supplier prefix and '*'
-        //        xlsx.setColumnWidth(16, 15); // Sales Office
-        //        xlsx.setColumnWidth(17, 15); // Status Text
-        //        xlsx.setColumnWidth(18, 15); // Supplier
-
-
-        qDebug() << "init new page";
+//        qDebug() << "init new page";
 
         // Seleccionar la hoja en la que deseas escribir
         xlsx.addSheet("Stats");
 
         xlsx.selectSheet("Stats");
-
-
-
 
         qDebug() << "init write stats";
         xlsx.write(2, 1, "Total Approved/Win Registers");
@@ -619,13 +624,6 @@ void TaskProccessDocuments::run(){
         xlsx.write(10, 7, "FAE");
         xlsx.write(10, 8, "Industry");
         xlsx.write(10, 9, "Project ID");
-
-
-
-
-
-
-
         xlsx.write(3, 1, total_registers);
         xlsx.write(3, 2, total_annualvalue, formatoMoneda);
         xlsx.write(3, 3, init_date.toString());
@@ -652,9 +650,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapAlberto["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -665,7 +663,7 @@ void TaskProccessDocuments::run(){
 
                     QList<QVariant> columnData = dataMapAlberto[columnName];
                     QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
+//                    qDebug() << "data = " << data;
 
 
 
@@ -676,9 +674,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapAlberto["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -711,9 +709,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapAndres["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -735,9 +733,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapAndres["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -762,9 +760,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapAugusto["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -786,9 +784,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapAugusto["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -814,9 +812,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapEnrique["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -838,9 +836,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapEnrique["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -866,9 +864,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapFernando["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -890,9 +888,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapFernando["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -918,9 +916,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapJose["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -942,9 +940,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapJose["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -970,9 +968,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapMitsuki["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -994,9 +992,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapMitsuki["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -1022,9 +1020,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapNotOwner["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -1046,9 +1044,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapNotOwner["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -1074,9 +1072,9 @@ void TaskProccessDocuments::run(){
         for(int indexBoom = 0; indexBoom < dataMapRafael["Design Registration Project id"].size(); indexBoom++ ){
             QVariant id = idList[indexBoom];
 
-            qDebug() << "id = " << id;
-            qDebug() << "idx = " << idx;
-            qDebug() << "indexBoom = " << indexBoom;
+//            qDebug() << "id = " << id;
+//            qDebug() << "idx = " << idx;
+//            qDebug() << "indexBoom = " << indexBoom;
 
 
 
@@ -1098,9 +1096,9 @@ void TaskProccessDocuments::run(){
                 }
                 double valueSuma = 0;
                 for(int i = 0; i < dataMapRafael["Annual value"].size(); i++){
-                    qDebug() << "id = " << id;
-                    qDebug() << "idlist = " << idList[i];
-                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
+//                    qDebug() << "id = " << id;
+//                    qDebug() << "idlist = " << idList[i];
+//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
                     if(id == idList[i]){
 
                         valueSuma += revenueList[i].toFloat();
@@ -1137,53 +1135,6 @@ void TaskProccessDocuments::run(){
 
 
 
-        //        QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name","FAE Name", "Industry", "Design Registration Project id"};
-
-        //        rowIndex = 11;
-        //        int indexBoom = 3;
-        //        QVariant projectidy;
-
-        //        for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
-        //            // Obtén el QMap actual
-        //            QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
-        //            int currentMapSize = currentMap.size();
-
-        //            if(!currentMap.isEmpty()){
-
-        //                for(indexBoom = 2; indexBoom < currentMapSize; indexBoom++){
-        //                    int column = 4;
-        //                    QVariantList projectid = currentMap["Design Registration Project id"];
-        //                    QVariant projectidx = projectid[indexBoom];
-        //                    qDebug() << "Indexboom:" << indexBoom;
-        //                    qDebug() << "boom size:" << currentMapSize;
-
-        //                    if( (projectidx != projectidy) && !projectidx.isNull()){
-        //                        foreach (const QString &columnName, columnNamesSheet2) {
-        //                            // Obtén la lista de datos de la columna actual
-        //                            QList<QVariant> columnData = currentMap[columnName];
-        //                            QVariant data = columnData[indexBoom];
-
-        //                            xlsx.write(rowIndex, column, data);
-        //                            column++;
-
-
-
-
-        //                        }
-
-        //                        rowIndex++;
-        //                    }
-        //                    projectidy = projectidx;
-
-
-
-        //                }
-
-
-
-        //            }
-        //        }
-
 
 
 
@@ -1209,14 +1160,7 @@ void TaskProccessDocuments::run(){
 
 
 
-
-
-
-
-
-
-
-
+        xlsx.selectSheet("Export");
 
         xlsx.saveAs(filePath);
 
@@ -1282,77 +1226,6 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
     }
 }
 
+//void TaskProccessDocuments::process_x(QVariant drms_date, QVariant *init_date, QVariant *end_date){
 
-
-
-
-//    // Definir nombres de columna para la nueva hoja
-//    QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name", "FAE Name", "Industry", "Design Registration Project id"};
-
-//    // Inicializar el índice de la fila
-//    rowIndex = 11;
-
-//    // Variables para controlar la lógica de desbordamiento
-//    QVariant projectidy;
-
-//    // Iterar sobre la lista de mapas
-//    for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
-//            // Obtener el QMap actual
-//            QMap<QString, QList<QVariant>> currentMap = dataMapList[mapIndex];
-//            int currentMapSize = currentMap.size();
-
-//            if (!currentMap.isEmpty()) {
-//            // Iterar sobre los datos en el mapa actual
-//            for (int indexBoom = 2; indexBoom < currentMapSize; ++indexBoom) {
-//                // Obtener el proyecto actual
-//                QVariantList projectid = currentMap["Design Registration Project id"];
-
-//                // Verificar que el índice esté dentro del rango antes de acceder
-//                if (indexBoom >= 0 && indexBoom < projectid.size()) {
-//                    QVariant projectidx = projectid[indexBoom];
-
-//                    // Verificar si el proyecto actual es diferente al proyecto anterior y no es nulo
-//                    if ((projectidx != projectidy) && !projectidx.isNull()) {
-//                        // Iterar sobre las columnas y escribir en el archivo Excel
-//                        int column = 4;
-
-//                        foreach (const QString &columnName, columnNamesSheet2) {
-//                            // Obtener la lista de datos de la columna actual
-//                            QList<QVariant> columnData = currentMap[columnName];
-
-//                            // Verificar que el índice esté dentro del rango antes de acceder
-//                            if (indexBoom >= 0 && indexBoom < columnData.size()) {
-//                                QVariant data = columnData[indexBoom];
-
-//                                // Escribir en el archivo Excel
-//                                xlsx.write(rowIndex, column, data);
-//                                column++;
-//                            } else {
-//                                // Manejar el caso en que el índice está fuera de rango
-//                                qWarning() << "Índice de columna fuera de rango";
-//                            }
-//                        }
-
-//                        // Incrementar el índice de la fila
-//                        rowIndex++;
-//                    }
-
-//                    // Actualizar el proyecto anterior
-//                    projectidy = projectidx;
-//                } else {
-//                    // Manejar el caso en que el índice está fuera de rango
-//                    qWarning() << "Índice de proyecto fuera de rango";
-//                }
-//            }
-//            }
-//    }
-
-
-//// Obtener el formato actual de la celda
-//QXlsx::Format formato = xlsx.cellAt("B1")->format();
-
-//// Aplicar formato de moneda al formato actual
-//formato.setNumberFormat(QXlsx::Format::FormatCurrency);
-
-//// Aplicar el formato actualizado a la celda
-//xlsx.cellAt("B1")->setFormat(formato);
+//}
