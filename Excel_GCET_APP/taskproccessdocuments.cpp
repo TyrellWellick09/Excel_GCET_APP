@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QHash>
 #include <QStandardPaths>
+#include "excel_adds.h"
+
 
 TaskProccessDocuments::TaskProccessDocuments(QMainWindow* window, char id, QStringList file_paths, QList<QXlsx::Document*>* drms_document, QList<QXlsx::Document*>* booms_documents )
     : mId(id), mfile_paths(file_paths), mdrms_document(drms_document), mbooms_documents(booms_documents),  mainWindow(window)
@@ -63,7 +65,6 @@ void TaskProccessDocuments::run(){
 
     //matchingDataMap["Boom file Name"];
 
-    QList<int> rowIndexes;
     int progress_value = 0;
 
     //qDebug() << "Export Proccess start";
@@ -175,16 +176,6 @@ void TaskProccessDocuments::run(){
                 //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
             }
 
-
-
-
-
-
-
-
-
-
-
             QXlsx::Worksheet *booms_worksheet = boomDocument->currentWorksheet();
             QStringList booms_columns; // Store the names of the columns
             int booms_worksheet_dimention = booms_worksheet->dimension().rowCount();
@@ -238,23 +229,33 @@ void TaskProccessDocuments::run(){
                         if(boomPart == drmsPart){
 
                             if(i < drms_dCreated.size()){
-                                QVariant dateCreated = drms_dCreated[i];
+                                QVariant dateTime = drms_dCreated[i];
                                 qDebug() << "date created on : " << drms_dCreated[i];
 
 
-                                QDate fechaReferencia(1900, 1, 1);
+                                //    // Ejemplo de uso
+                                //    double excelSerialNumber = 44213.5; // Ejemplo de un número de serie de fecha de Excel
 
-                                // Calculamos la fecha sumando el número de días a la fecha de referencia
-                                QDate fechaCalculada = fechaReferencia.addDays(dateCreated.toInt() - 2);
+                                //    // Convertir el número de serie a un objeto QDateTime
+                                //    QDateTime dateTime = excelSerialNumberToDateTime(excelSerialNumber);
+
+                                //    // Imprimir la fecha y hora en un formato legible
+                                //    qDebug() << "Fecha y Hora:" << dateTime.toString("dd/MM/yyyy hh:mm:ss");
+
+                                QDate dateCreated = excelSerialNumberToDate(dateTime.toDouble());
+
+
+
+//                                QDate fechaReferencia(1900, 1, 1);
+
+//                                // Calculamos la fecha sumando el número de días a la fecha de referencia
+//                                QDate fechaCalculada = fechaReferencia.addDays(dateCreated.toInt() - 2);
 
                                 // Imprimimos la fecha calculada
                                 qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
-                                qDebug()<< "Fecha drms: " << fechaCalculada;
+                                qDebug()<< "Fecha drms: " << dateCreated;
 
-                                if (creationDateBoom <= fechaCalculada) {
-
-
-
+                                if (creationDateBoom <= dateCreated) {
 
 
                                     // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
@@ -267,8 +268,6 @@ void TaskProccessDocuments::run(){
                                         //qDebug() << "column data: " << columnData;
 
                                         if(columnName == "Boom file Name" ){
-
-
                                             switch (userNumber) {
                                             case 61752:
 
@@ -386,7 +385,6 @@ void TaskProccessDocuments::run(){
         }
 
         // Declaration of the variables of statistics
-
         int total_registers = 0;
         double total_annualvalue = 0.0;
         QVariant init_date = "";
@@ -404,19 +402,10 @@ void TaskProccessDocuments::run(){
         // Agregar una nueva hoja al documento para los stats
         xlsx.addSheet("Export");
 
-
         // "Annual value"
         // Obtener el formato actual de la celda
         QXlsx::Format formatoMoneda;
         formatoMoneda.setNumberFormat("$ #,##0.00");
-
-
-
-
-
-
-        // Get the total approved registers by engineer
-
 
         // add to the map of maps
         dataMapMap["Enrique"] = dataMapEnrique;
@@ -476,9 +465,6 @@ void TaskProccessDocuments::run(){
         }
 
 
-
-
-
         int rowIndex = 1; // Comenzar en la fila 2 para dejar espacio para encabezados
 
         qDebug() << "Test notowner" << dataMapNotOwner.keys();
@@ -527,8 +513,8 @@ void TaskProccessDocuments::run(){
                         for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
                             QVariant data = columnData[dataRowIndex];
                             if(!data.isNull()){
-//                                qDebug() << "Date : " << data;
-                                process_date(data, &init_date, &end_date);
+                                //                                qDebug() << "Date : " << data;
+                                process_date(data, init_date, end_date);
 
                             }
                         }
@@ -538,7 +524,7 @@ void TaskProccessDocuments::run(){
                     for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
                         qDebug() << "rowIndex write: "<< rowIndex;
                         xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
-//                                                qDebug() << "Data print : " << columnData[dataRowIndex];
+                        //                                                qDebug() << "Data print : " << columnData[dataRowIndex];
                     }
                 }
 
@@ -549,60 +535,27 @@ void TaskProccessDocuments::run(){
             }
         }
 
-//        registers_by_engineer["Enrique"]= dataMapEnrique["Status Text"].size();
-//        total_registers += dataMapEnrique["Status Text"].size();
-//        registers_by_engineer["Alberto"] = dataMapAlberto["Status Text"].size();
-//        total_registers += dataMapAlberto["Status Text"].size();
-//        registers_by_engineer["Rafael"] = dataMapRafael["Status Text"].size();
-//        total_registers += dataMapRafael["Status Text"].size();
-//        registers_by_engineer["Jose"] = dataMapJose["Status Text"].size();
-//        total_registers += dataMapJose["Status Text"].size();
-//        registers_by_engineer["Mitsuki"] = dataMapMitsuki["Status Text"].size();
-//        total_registers += dataMapMitsuki["Status Text"].size();
-//        registers_by_engineer["Andres"] = dataMapAndres["Status Text"].size();
-//        total_registers += dataMapAndres["Status Text"].size();
-//        registers_by_engineer["Fernando"] = dataMapFernando["Status Text"].size();
-//        total_registers += dataMapFernando["Status Text"].size();
-//        registers_by_engineer["Augusto"] = dataMapAugusto["Status Text"].size();
-//        total_registers += dataMapAugusto["Status Text"].size();
-//        registers_by_engineer["NotOwner"] = dataMapNotOwner["Status Text"].size();
-//        total_registers += dataMapNotOwner["Status Text"].size();
 
-//        qDebug() << "Register by engineer: " << registers_by_engineer;
-//        qDebug() << "Annual value by enginer: " << annualValue_by_engineer;
-//        qDebug() << "Total Register: " << total_registers;
-//        qDebug() << "Total Annual Value: " << total_annualvalue;
-//        qDebug() << "Init date: " << init_date.toString();
-//        qDebug() << "End date: " << end_date.toString();
+        xlsx.setColumnWidth(1, 12); // AM name
+        xlsx.setColumnWidth(2, 12); // Annual Value
+        xlsx.setColumnWidth(3, 12); // approved date
+        xlsx.setColumnWidth(4, 80); // Boom file name
+        xlsx.setColumnWidth(5, 10); // Customer
+        xlsx.setColumnWidth(6, 12); // D created on
+        xlsx.setColumnWidth(7, 30); // Date Design Registration Submitted
+        xlsx.setColumnWidth(8, 30); // Design Registration Project Name
+        xlsx.setColumnWidth(9, 25); // Design Registration Project id
+        xlsx.setColumnWidth(10, 32); // Design Registration Win/Winbuy Date
+        xlsx.setColumnWidth(11, 20); // FAE Name
+        xlsx.setColumnWidth(12, 12); // GCET Engineer
+        xlsx.setColumnWidth(13, 10); // Industry
+        xlsx.setColumnWidth(14, 10); // Market
+        xlsx.setColumnWidth(15, 30); // Name
+        xlsx.setColumnWidth(16, 30); // Part mask with supplier prefix and '*'
+        xlsx.setColumnWidth(17, 10); // Sales Office
+        xlsx.setColumnWidth(18, 10); // Status Text
+        xlsx.setColumnWidth(19, 10); // Supplier
 
-//        qDebug() << "init format";
-
-
-        xlsx.autosizeColumnWidth(1);
-//        qDebug() << "xq";
-        xlsx.autosizeColumnWidth(2);
-//        qDebug() << "xq";
-        xlsx.autosizeColumnWidth(3);
-//        qDebug() << "xq";
-        xlsx.autosizeColumnWidth(4);
-//        qDebug() << "xq";
-        xlsx.autosizeColumnWidth(5);
-//        qDebug() << "xq";
-        xlsx.autosizeColumnWidth(6);
-        xlsx.autosizeColumnWidth(7);
-        xlsx.autosizeColumnWidth(8);
-        xlsx.autosizeColumnWidth(9);
-        xlsx.autosizeColumnWidth(10);
-        xlsx.autosizeColumnWidth(11);
-        xlsx.autosizeColumnWidth(12);
-        xlsx.autosizeColumnWidth(13);
-        xlsx.autosizeColumnWidth(14);
-        xlsx.autosizeColumnWidth(15);
-        xlsx.autosizeColumnWidth(16);
-        xlsx.autosizeColumnWidth(17);
-        xlsx.autosizeColumnWidth(18);
-
-//        qDebug() << "init new page";
 
         // Seleccionar la hoja en la que deseas escribir
         xlsx.addSheet("Stats");
@@ -614,7 +567,6 @@ void TaskProccessDocuments::run(){
         xlsx.write(2, 2, "Total Annual Value");
         xlsx.write(2, 3, "Start Date");
         xlsx.write(2, 4, "End Date");
-
         xlsx.write(10, 1, "Engineer");
         xlsx.write(10, 2, "Register by Engineer");
         xlsx.write(10, 3, "Annual Value by Engineer");
@@ -629,490 +581,15 @@ void TaskProccessDocuments::run(){
         xlsx.write(3, 3, init_date.toString());
         xlsx.write(3, 4, end_date.toString());
 
-
-
-        qDebug() << "init stats by engineer and project";
-        // Definir nombres de columna para la nueva hoja
-        QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name", "FAE Name", "Industry", "Design Registration Project id"};
-        QVariantList idList = dataMapAlberto["Design Registration Project id"];
-        QVariantList revenueList = dataMapAlberto["Annual value"];
-        QVariant idx;
-        QList<int> indexRevenue;
-
-
-
-        // Inicializar el índice de la fila
+        // Start to fill the sheet 2 with stats
         rowIndex = 11; // dataMapEnrique
         QList<int> rowList;
-        rowList.append(rowIndex);
 
+        qDebug() << "Start new function";
 
-        for(int indexBoom = 0; indexBoom < dataMapAlberto["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
+        process_stats(dataMapList, xlsx, rowIndex, rowList);
 
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapAlberto[columnName];
-                    QVariant data = columnData[indexBoom];
-//                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapAlberto["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-
-
-
-                rowIndex++;
-
-            }
-
-
-
-
-            idx = id;
-        }
-
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        revenueList = dataMapAndres["Annual value"];
-        idList = dataMapAndres["Design Registration Project id"];
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapAndres.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapAndres["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapAndres[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapAndres["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        revenueList = dataMapAugusto["Annual value"];
-        idList = dataMapAugusto["Design Registration Project id"];
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapEnrique.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapAugusto["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapAugusto[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapAugusto["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        idList = dataMapEnrique["Design Registration Project id"];
-        revenueList = dataMapEnrique["Annual value"];
-
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapEnrique.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapEnrique["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapEnrique[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapEnrique["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        idList = dataMapFernando["Design Registration Project id"];
-        revenueList = dataMapFernando["Annual value"];
-
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapFernando.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapFernando["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapFernando[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapFernando["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        idList = dataMapJose["Design Registration Project id"];
-        revenueList = dataMapJose["Annual value"];
-
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapJose.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapJose["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapJose[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapJose["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        idList = dataMapMitsuki["Design Registration Project id"];
-        revenueList = dataMapMitsuki["Annual value"];
-
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapMitsuki.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapMitsuki["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapMitsuki[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapMitsuki["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        idList = dataMapNotOwner["Design Registration Project id"];
-        revenueList = dataMapNotOwner["Annual value"];
-
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapNotOwner.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapNotOwner["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapNotOwner[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapNotOwner["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-
-        rowIndex++;
-        rowList.append(rowIndex);
-
-        idList = dataMapRafael["Design Registration Project id"];
-        revenueList = dataMapRafael["Annual value"];
-
-
-        // Inicializar el índice de la fila
-        qDebug() << "dataMapEnrique size = " << dataMapRafael.size();
-
-        for(int indexBoom = 0; indexBoom < dataMapRafael["Design Registration Project id"].size(); indexBoom++ ){
-            QVariant id = idList[indexBoom];
-
-//            qDebug() << "id = " << id;
-//            qDebug() << "idx = " << idx;
-//            qDebug() << "indexBoom = " << indexBoom;
-
-
-
-            if(idx!= id){
-
-                int column = 4;
-                foreach (const QString &columnName, columnNamesSheet2){
-
-                    QList<QVariant> columnData = dataMapRafael[columnName];
-                    QVariant data = columnData[indexBoom];
-                    qDebug() << "data = " << data;
-
-
-
-                    xlsx.write(rowIndex, column, data);
-                    column++;
-
-
-                }
-                double valueSuma = 0;
-                for(int i = 0; i < dataMapRafael["Annual value"].size(); i++){
-//                    qDebug() << "id = " << id;
-//                    qDebug() << "idlist = " << idList[i];
-//                    qDebug() << "idlistsum = " << revenueList[i].toFloat();
-                    if(id == idList[i]){
-
-                        valueSuma += revenueList[i].toFloat();
-                    }
-                }
-                xlsx.write(rowIndex, 5, valueSuma);
-                rowIndex++;
-
-            }
-            idx = id;
-        }
-        rowIndex++;
-
-        rowList.append(rowIndex);
+        qDebug() << "after new function";
 
         // Enginer data annualValue_by_engineer, registers_by_engineer
         QStringList engineers_keys = registers_by_engineer.keys();
@@ -1129,16 +606,7 @@ void TaskProccessDocuments::run(){
 
             indexColumn++;
 
-
-
         }
-
-
-
-
-
-
-
 
         xlsx.autosizeColumnWidth(1);
         xlsx.autosizeColumnWidth(2);
@@ -1149,10 +617,6 @@ void TaskProccessDocuments::run(){
         xlsx.autosizeColumnWidth(7);
         xlsx.autosizeColumnWidth(8);
         xlsx.autosizeColumnWidth(9);
-
-
-
-
 
 
         // Aplicar el formato actualizado a la celda
@@ -1182,7 +646,7 @@ void TaskProccessDocuments::run(){
 }
 
 
-void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date, QVariant *end_date){
+void TaskProccessDocuments::process_date(QVariant drms_date, QVariant &init_date, QVariant &end_date){
 
     // Fecha inicial (por ejemplo, 1 de enero de 2000)
     QDate startDate(2000, 1, 1);
@@ -1193,30 +657,28 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
     // Convertir el string a un objeto QDate
     QDate date_converter = QDate::fromString(date, "yyyy-MM-dd");
 
-
-
     if (date_converter.isValid()) {
         // Calcular la diferencia en días
         int diference_days = startDate.daysTo(date_converter);
         qDebug() << "Número de días desde la fecha inicial:" << diference_days;
 
-            if(*init_date == ""){
-            *init_date = date_converter;
+            if(init_date == ""){
+            init_date = date_converter;
             qDebug() << "Start comparacion";
         }
 
-        else if(*end_date == ""){
-            *end_date = date_converter;
+        else if(end_date == ""){
+            end_date = date_converter;
             qDebug() << "first end date ";}
 
-        else if(init_date->toDate() > date_converter){
-            *init_date = date_converter;
-            qDebug() << "NEW Init Date." << *init_date ;
+        else if(init_date.toDate() > date_converter){
+            init_date = date_converter;
+            qDebug() << "NEW Init Date." << init_date ;
         }
 
-        else if(end_date->toDate() < date_converter){
-            *end_date = date_converter;
-            qDebug() << "End end date " << *end_date;
+        else if(end_date.toDate() < date_converter){
+            end_date = date_converter;
+            qDebug() << "End end date " << end_date;
         }
 
     } else {
@@ -1226,6 +688,73 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant *init_date
     }
 }
 
-//void TaskProccessDocuments::process_x(QVariant drms_date, QVariant *init_date, QVariant *end_date){
 
-//}
+void TaskProccessDocuments::process_stats(QList<QMap<QString, QList<QVariant>>>& dataMapList, QXlsx::Document& document, int& rowIndex, QList<int>& rowList) {
+    qDebug() << "init stats by engineer and project";
+
+    // Define column names of the new sheet
+    QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name", "FAE Name", "Industry", "Design Registration Project id"};
+    QVariant idx; // Variable to compare the project id to make the sum
+
+    rowList.append(rowIndex);
+
+    // Init for to iterate the list of maps
+    for (int indexMap = 0; indexMap < dataMapList.size(); ++indexMap) {
+            // Select the current map from the list
+            QMap<QString, QList<QVariant>> currentMap = dataMapList[indexMap];
+            QVariantList idList = currentMap["Design Registration Project id"]; // Variable to compare the project id to make the sum
+            QVariantList revenueList = currentMap["Annual value"]; // List to store the revenue sum
+
+            for (int indexBom = 0; indexBom < idList.size(); indexBom++) {
+            QVariant id = idList[indexBom];
+
+            if (idx != id) {
+                int column = 4;
+
+                foreach (const QString &columnName, columnNamesSheet2) {
+                    QList<QVariant> columnData = currentMap[columnName];
+
+                    int dataCount = columnData.size();
+
+                    // Check if the index is within the valid range
+                    if (indexBom < dataCount) {
+                        QVariant data = columnData[indexBom];
+                        qDebug() << "data = " << data;
+                        document.write(rowIndex, column, data);
+                        column++;
+                    } else {
+                        qDebug() << "Error: Index out of range for column " << columnName;
+                        // Handle the error appropriately, e.g., skip writing to the document or add a default value.
+                    }
+                }
+
+                double valueSum = 0;  // Reset valueSum for each new project ID
+
+                for (int i = 0; i < revenueList.size(); i++) {
+                    if (id == idList[i]) {
+                        valueSum += revenueList[i].toFloat();
+                    }
+                }
+
+                document.write(rowIndex, 5, valueSum);
+                rowIndex++;
+            }
+
+            idx = id;
+            }
+
+            rowIndex++;
+            rowList.append(rowIndex);
+    }
+}
+
+
+//    // Ejemplo de uso
+//    double excelSerialNumber = 44213.5; // Ejemplo de un número de serie de fecha de Excel
+
+//    // Convertir el número de serie a un objeto QDateTime
+//    QDateTime dateTime = excelSerialNumberToDateTime(excelSerialNumber);
+
+//    // Imprimir la fecha y hora en un formato legible
+//    qDebug() << "Fecha y Hora:" << dateTime.toString("dd/MM/yyyy hh:mm:ss");
+

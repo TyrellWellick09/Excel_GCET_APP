@@ -30,7 +30,9 @@ private:
     QList<QXlsx::Document*>* mdrms_document;
     QList<QXlsx::Document*>* mbooms_documents;
     QMainWindow* mainWindow;
-    void process_date(QVariant drms_date, QVariant *init_date, QVariant *end_date);
+    void process_date(QVariant drms_date, QVariant &init_date, QVariant &end_date);
+    void process_stats(QList<QMap<QString, QList<QVariant>>>& dataMapList, QXlsx::Document& document, int& rowIndex, QList<int>& rowList);
+
 
 
 };

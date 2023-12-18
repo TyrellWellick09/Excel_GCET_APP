@@ -19,12 +19,14 @@ QXLSX_SOURCEPATH=./source/  # current QXlsx source path is ./source/
 include(./QXlsx.pri)
 
 SOURCES += \
+    excel_adds.cpp \
     main.cpp \
     mainwindow.cpp \
     taskchargedocuments.cpp \
     taskproccessdocuments.cpp
 
 HEADERS += \
+    excel_adds.h \
     mainwindow.h \
     taskchargedocuments.h \
     taskproccessdocuments.h
