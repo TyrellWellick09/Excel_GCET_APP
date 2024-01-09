@@ -4,5 +4,6 @@
 #include <QDateTime>
 
 QDate excelSerialNumberToDate(double serialNumber);
+QDate typeOfDate(const QVariant& valor);
 
 #endif // EXCELUTILS_H

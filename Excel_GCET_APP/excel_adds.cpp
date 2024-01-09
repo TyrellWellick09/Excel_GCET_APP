@@ -1,24 +1,41 @@
 #include "excel_adds.h"
-
+// Function to convert a base number to date. That numbers comes from excel
 QDate excelSerialNumberToDate(double serialNumber) {
-    // La fecha base en Excel es el 1 de enero de 1900
+    qDebug() << "Base number: " << serialNumber;
+    // The base date of Excel is January 1 of 1900
     const QDate excelBaseDate(1900, 1, 1);
 
-//    // Ajuste para el problema del año 1900 en Excel
-//    if (serialNumber < 60) {
-//        serialNumber++;
-//    }
-
-
-
-    // Convertir el número de serie a días desde la fecha base de Excel
+    // Converter the serial number to days since the base date of Excel
     int days = static_cast<int>(serialNumber);
 
-    // Crear un objeto QDate utilizando la fecha base de Excel y los días
-    QDate date = excelBaseDate.addDays(days - 2); // Ajuste necesario para el 1900/02/29 que no existe en Excel
-
+    // Create a QDate object using the base date of Excel and the days
+    QDate date = excelBaseDate.addDays(days - 2); // Adjustment necessary for 1900/02/29 that does not exist in Excel
     return date;
 }
 
+QDate typeOfDate(const QVariant& valor) {
+    bool succesfulConvertion = false;
 
+    // Intentar convertir a double
+    double doubleValue = valor.toDouble(&succesfulConvertion);
+    if (succesfulConvertion) {
+        qDebug() << "Fecha en formato número: " << doubleValue;
+
+                    QDate dateCreated = excelSerialNumberToDate(doubleValue);
+
+        return dateCreated;
+    }
+
+    // Intentar convertir a QDate
+    QDate fecha = valor.toDate();
+    if (fecha.isValid()) {
+        qDebug() << "Fecha en formato QDate: " << fecha;
+        // Retorna la fecha si la conversión es exitosa
+        return fecha;
+    }
+
+    qDebug() << "Formato de fecha no reconocido.";
+    return QDate();
+
+}
 

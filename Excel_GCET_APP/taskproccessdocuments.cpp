@@ -40,6 +40,26 @@ void TaskProccessDocuments::run(){
                                              "AM Name",
                                              "D Created on"};
 
+    QStringList column_names_final = {"Design Registration Project id",
+                                      "GCET Engineer",
+                                      "Boom file Name",
+                                      "Design Registration Project Name",
+                                      "Supplier",
+                                      "Part mask with supplier prefix and '*'",
+                                      "Annual value",
+                                      "Status Text",
+                                      "Date Design Registration Submitted",
+                                      "Approved Date",
+                                      "Design Registration Win/Winbuy Date",
+                                      "D Created on",
+                                      "Industry",
+                                      "Market",
+                                      "FAE Name",
+                                      "AM Name",
+                                      "Name",
+                                      "Customer",
+                                      "Sales Office"};
+
     QStringList booms_column_names_to_find = {"Project Number", "Part Number" };
 
     // Start a map to store the values of each document
@@ -54,9 +74,10 @@ void TaskProccessDocuments::run(){
     QMap<QString, QList<QVariant>> dataMapAndres; // 055647
     QMap<QString, QList<QVariant>> dataMapFernando; // 058902
     QMap<QString, QList<QVariant>> dataMapAugusto; // 056461
+    QMap<QString, QList<QVariant>> dataMapOscar; // 56399
     QMap<QString, QList<QVariant>> dataMapNotOwner; // number
 
-    QList<int> user_numbers = {61752, 55048, 53796, 56130, 061751, 55647, 58902, 56461};
+    QList<int> user_numbers = {61752, 55048, 53796, 56130, 061751, 55647, 58902, 56461, 56399};
 
     QList<QMap<QString, QList<QVariant>>*> dataMapListPtr;
     QList<QMap<QString, QList<QVariant>>> dataMapList;
@@ -127,7 +148,7 @@ void TaskProccessDocuments::run(){
     drms_columnDataMap["Boom file Name"];
     drms_columnDataMap["GCET Engineer"];
 
-    qDebug() << "Key names = " << drms_datamap_keys;
+    //qDebug() << "Key names = " << drms_datamap_keys;
 
     int name = 0;
     //bool start = false;
@@ -136,7 +157,7 @@ void TaskProccessDocuments::run(){
 
     foreach (const QString &filePath, mfile_paths) {
         QFileInfo fileInfo(filePath);
-        QString fileName = fileInfo.baseName();
+        QString fileName = fileInfo.completeBaseName();
         fileNames.append(fileName);
 
     }
@@ -145,35 +166,46 @@ void TaskProccessDocuments::run(){
 
         for (const QXlsx::Document* boomDocument : *mbooms_documents) {
 
-            QString fileNamePrint = fileNames[name];
-            qDebug() << "Nombre del archivo: " << fileNamePrint;
-            int userNumber = (fileNames[name].right(5)).toInt();
-            qDebug() << "Nombre de usuario: " << userNumber;
-
-            int nameFileSize = fileNames[name].length();
+            QString fileName = fileNames[name];
             QDate creationDateBoom;
             QString creationDateString;
-            if(user_numbers.contains(userNumber)){
-                creationDateString = (fileNames[name].mid(nameFileSize - 18, 6));
-                //qDebug() << "Fecha de creacion del boom : " << creationDateString;
+            int userNumber = 0;
+            int fileNameSize = 0;
 
+            qDebug() << "Nombre del archivo: " << fileName;
+
+            // get the user number from the file name
+            userNumber = (fileName.right(5)).toInt();
+            qDebug() << "Nombre de usuario: " << userNumber;
+
+            // get the size of the name
+            fileNameSize = fileNames[name].length();
+
+
+            if(user_numbers.contains(userNumber)){
+                // get the date in string form
+                creationDateString = (fileName.mid(fileNameSize - 18, 6));
+                qDebug() << "IF";
+                qDebug() << "Fecha de creacion del boom creationDateBoom string: " << creationDateString;
+
+                // add the 20 number to complete the year
                 creationDateString.push_front("20");
 
+                // transforme to qdate form
                 creationDateBoom = QDate::fromString(creationDateString, "yyyyMMdd");
-
-                //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
-
             }
             else{
+                qDebug() << "ELSE";
 
-                creationDateString = (fileNames[name].mid(nameFileSize - 12, 6));
-                //qDebug() << "Fecha de creacion del boom : " << creationDateString;
+                // get the date in string form
+                creationDateString = (fileName.mid(fileNameSize - 12, 6));
 
+                // add the 20 number to complete the year
                 creationDateString.push_front("20");
 
+                // transforme to qdate form
                 creationDateBoom = QDate::fromString(creationDateString, "yyyyMMdd");
 
-                //qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
             }
 
             QXlsx::Worksheet *booms_worksheet = boomDocument->currentWorksheet();
@@ -230,32 +262,21 @@ void TaskProccessDocuments::run(){
 
                             if(i < drms_dCreated.size()){
                                 QVariant dateTime = drms_dCreated[i];
-                                qDebug() << "date created on : " << drms_dCreated[i];
-
-
-                                //    // Ejemplo de uso
-                                //    double excelSerialNumber = 44213.5; // Ejemplo de un número de serie de fecha de Excel
-
-                                //    // Convertir el número de serie a un objeto QDateTime
-                                //    QDateTime dateTime = excelSerialNumberToDateTime(excelSerialNumber);
-
-                                //    // Imprimir la fecha y hora en un formato legible
-                                //    qDebug() << "Fecha y Hora:" << dateTime.toString("dd/MM/yyyy hh:mm:ss");
-
-                                QDate dateCreated = excelSerialNumberToDate(dateTime.toDouble());
+                                qDebug() << "drms_dCreated[i] " << drms_dCreated[i];
 
 
 
-//                                QDate fechaReferencia(1900, 1, 1);
+                                //QDate dateCreated = excelSerialNumberToDate(dateTime.toDouble()); typeOfDate
+                                QDate dateCreated = typeOfDate(drms_dCreated[i]);
 
-//                                // Calculamos la fecha sumando el número de días a la fecha de referencia
-//                                QDate fechaCalculada = fechaReferencia.addDays(dateCreated.toInt() - 2);
+
+
 
                                 // Imprimimos la fecha calculada
                                 qDebug() << "Fecha de creacion del boom qdate: " << creationDateBoom;
-                                qDebug()<< "Fecha drms: " << dateCreated;
+                                qDebug()<< "Fecha drms D created: " << dateCreated;
 
-                                if (creationDateBoom <= dateCreated) {
+                                if ((creationDateBoom.isValid()) && (creationDateBoom <= dateCreated)) {
 
 
                                     // Iterar sobre las claves (nombres de las columnas) en drms_columnDataMap
@@ -314,6 +335,11 @@ void TaskProccessDocuments::run(){
                                                 dataMapAugusto["GCET Engineer"].append("Augusto");
                                                 break;
 
+                                            case 56399:
+                                                dataMapOscar["Boom file Name"].append(fileNames[name]);
+                                                dataMapOscar["GCET Engineer"].append("Oscar");
+                                                break;
+
                                             default:
                                                 dataMapNotOwner["Boom file Name"].append(fileNames[name]);
                                                 dataMapNotOwner["GCET Engineer"].append("Not Owner");
@@ -365,6 +391,10 @@ void TaskProccessDocuments::run(){
                                                 dataMapAugusto[columnName].append(cellValue);
                                                 break;
 
+                                            case 56399:
+                                                dataMapOscar[columnName].append(cellValue);
+                                                break;
+
                                             default:
                                                 dataMapNotOwner[columnName].append(cellValue);
                                                 qDebug() << "NotOwner data: " << cellValue;
@@ -376,7 +406,8 @@ void TaskProccessDocuments::run(){
                                 }
                             }
                         }
-                        else{qDebug() << "Not coincidence part";}
+                        else{//qDebug() << "Not coincidence part";
+                        }
                     }
                 }
 
@@ -416,6 +447,8 @@ void TaskProccessDocuments::run(){
         dataMapMap["Andres"] = dataMapAndres;
         dataMapMap["Fernando"] = dataMapFernando;
         dataMapMap["Augusto"] = dataMapAugusto;
+        dataMapMap["Oscar"] = dataMapOscar;
+
         dataMapMap["NotOwner"] = dataMapNotOwner;
 
         QList dataMapMap_keys = dataMapMap.keys();
@@ -429,6 +462,7 @@ void TaskProccessDocuments::run(){
         dataMapList.append(dataMapAndres);
         dataMapList.append(dataMapFernando);
         dataMapList.append(dataMapAugusto);
+        dataMapList.append(dataMapOscar);
         dataMapList.append(dataMapNotOwner);
 
         // Sumar las cantidades de "Annual Value"
@@ -467,7 +501,7 @@ void TaskProccessDocuments::run(){
 
         int rowIndex = 1; // Comenzar en la fila 2 para dejar espacio para encabezados
 
-        qDebug() << "Test notowner" << dataMapNotOwner.keys();
+        //qDebug() << "Test notowner" << dataMapNotOwner.keys();
 
         for (int mapIndex = 0; mapIndex < dataMapList.size(); ++mapIndex) {
             // Obtén el QMap actual
@@ -486,15 +520,15 @@ void TaskProccessDocuments::run(){
                     rowIndex++;
                 }
 
-                qDebug() << "Qmap to check: " << currentMap;
+                //qDebug() << "Qmap to check: " << currentMap;
 
-                qDebug() << "Print of headers: ";
-                foreach (const QString &columnName, columnNames) {
-                    qDebug() << "rowIndex: "<< rowIndex;
-                    qDebug() << "Column : " << columnNames.indexOf(columnName) + 1;
-                    qDebug() << "columnName: " << columnName;
+                //qDebug() << "Print of headers: ";
+                foreach (const QString &columnName, column_names_final) {
+                    //                    qDebug() << "rowIndex: "<< rowIndex;
+                    //                    qDebug() << "Column : " << columnNames.indexOf(columnName) + 1;
+                    //                    qDebug() << "columnName: " << columnName;
 
-                    xlsx.write(rowIndex, columnNames.indexOf(columnName) + 1, columnName);
+                    xlsx.write(rowIndex, column_names_final.indexOf(columnName) + 1, columnName);
 
                 }
 
@@ -502,9 +536,9 @@ void TaskProccessDocuments::run(){
                 if (mapIndex < dataMapList.size() ) {
                     rowIndex++;
                 }
-                qDebug() << "rowIndex salto de linea: "<< rowIndex;
+                //                qDebug() << "rowIndex salto de linea: "<< rowIndex;
 
-                foreach (const QString &columnName, columnNames) {
+                foreach (const QString &columnName, column_names_final) {
                     // Obtén la lista de datos de la columna actual
                     QList<QVariant> columnData = currentMap[columnName];
 
@@ -522,47 +556,46 @@ void TaskProccessDocuments::run(){
 
                     // Itera sobre los datos de la columna y escríbelos en el archivo Excel
                     for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
-                        qDebug() << "rowIndex write: "<< rowIndex;
-                        xlsx.write(rowIndex + dataRowIndex, columnNames.indexOf(columnName) + 1, columnData[dataRowIndex]);
+                        //                        qDebug() << "rowIndex write: "<< rowIndex;
+                        xlsx.write(rowIndex + dataRowIndex, column_names_final.indexOf(columnName) + 1, columnData[dataRowIndex]);
                         //                                                qDebug() << "Data print : " << columnData[dataRowIndex];
                     }
                 }
 
                 // Aumenta el índice de la primera fila para el próximo QMap if else
-                rowIndex += columnNames.isEmpty() ? 1 : currentMap[columnNames[0]].size();
+                rowIndex += column_names_final.isEmpty() ? 1 : currentMap[column_names_final[0]].size();
 
 
             }
         }
 
 
-        xlsx.setColumnWidth(1, 12); // AM name
-        xlsx.setColumnWidth(2, 12); // Annual Value
-        xlsx.setColumnWidth(3, 12); // approved date
-        xlsx.setColumnWidth(4, 80); // Boom file name
-        xlsx.setColumnWidth(5, 10); // Customer
-        xlsx.setColumnWidth(6, 12); // D created on
-        xlsx.setColumnWidth(7, 30); // Date Design Registration Submitted
-        xlsx.setColumnWidth(8, 30); // Design Registration Project Name
-        xlsx.setColumnWidth(9, 25); // Design Registration Project id
-        xlsx.setColumnWidth(10, 32); // Design Registration Win/Winbuy Date
-        xlsx.setColumnWidth(11, 20); // FAE Name
-        xlsx.setColumnWidth(12, 12); // GCET Engineer
+        xlsx.setColumnWidth(1, 25); // Design Registration Project id
+        xlsx.setColumnWidth(2, 12); // GCET Engineer
+        xlsx.setColumnWidth(3, 80); // Boom file name
+        xlsx.setColumnWidth(4, 30); // Design Registration Project Name
+        xlsx.setColumnWidth(5, 10); // Supplier
+        xlsx.setColumnWidth(6, 30); // Part mask with supplier prefix and '*'
+        xlsx.setColumnWidth(7, 12); // Annual Value
+        xlsx.setColumnWidth(8, 10); // Status Text
+        xlsx.setColumnWidth(9, 30); // Date Design Registration Submitted
+        xlsx.setColumnWidth(10, 12); // approved date
+        xlsx.setColumnWidth(11, 32); // Design Registration Win/Winbuy Date
+        xlsx.setColumnWidth(12, 12); // D created on
         xlsx.setColumnWidth(13, 10); // Industry
         xlsx.setColumnWidth(14, 10); // Market
-        xlsx.setColumnWidth(15, 30); // Name
-        xlsx.setColumnWidth(16, 30); // Part mask with supplier prefix and '*'
-        xlsx.setColumnWidth(17, 10); // Sales Office
-        xlsx.setColumnWidth(18, 10); // Status Text
-        xlsx.setColumnWidth(19, 10); // Supplier
-
+        xlsx.setColumnWidth(15, 20); // FAE Name
+        xlsx.setColumnWidth(16, 12); // AM name
+        xlsx.setColumnWidth(17, 30); // Name
+        xlsx.setColumnWidth(18, 10); // Customer
+        xlsx.setColumnWidth(19, 10); // Sales Office
 
         // Seleccionar la hoja en la que deseas escribir
         xlsx.addSheet("Stats");
 
         xlsx.selectSheet("Stats");
 
-        qDebug() << "init write stats";
+        //        qDebug() << "init write stats";
         xlsx.write(2, 1, "Total Approved/Win Registers");
         xlsx.write(2, 2, "Total Annual Value");
         xlsx.write(2, 3, "Start Date");
@@ -585,11 +618,11 @@ void TaskProccessDocuments::run(){
         rowIndex = 11; // dataMapEnrique
         QList<int> rowList;
 
-        qDebug() << "Start new function";
+        //        qDebug() << "Start new function";
 
         process_stats(dataMapList, xlsx, rowIndex, rowList);
 
-        qDebug() << "after new function";
+        //        qDebug() << "after new function";
 
         // Enginer data annualValue_by_engineer, registers_by_engineer
         QStringList engineers_keys = registers_by_engineer.keys();
@@ -660,37 +693,38 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant &init_date
     if (date_converter.isValid()) {
         // Calcular la diferencia en días
         int diference_days = startDate.daysTo(date_converter);
-        qDebug() << "Número de días desde la fecha inicial:" << diference_days;
+        //        qDebug() << "Número de días desde la fecha inicial:" << diference_days;
 
-            if(init_date == ""){
+        if(init_date == ""){
             init_date = date_converter;
-            qDebug() << "Start comparacion";
+            //            qDebug() << "Start comparacion";
         }
 
         else if(end_date == ""){
             end_date = date_converter;
-            qDebug() << "first end date ";}
+            //            qDebug() << "first end date ";
+        }
 
         else if(init_date.toDate() > date_converter){
             init_date = date_converter;
-            qDebug() << "NEW Init Date." << init_date ;
+            //            qDebug() << "NEW Init Date." << init_date ;
         }
 
         else if(end_date.toDate() < date_converter){
             end_date = date_converter;
-            qDebug() << "End end date " << end_date;
+            //            qDebug() << "End end date " << end_date;
         }
 
     } else {
-        qDebug() << "Formato de fecha no válido.";
-            qDebug() << "Fecha." << date_converter ;
+        //        qDebug() << "Formato de fecha no válido.";
+        //            qDebug() << "Fecha." << date_converter ;
 
     }
 }
 
 
 void TaskProccessDocuments::process_stats(QList<QMap<QString, QList<QVariant>>>& dataMapList, QXlsx::Document& document, int& rowIndex, QList<int>& rowList) {
-    qDebug() << "init stats by engineer and project";
+    //    qDebug() << "init stats by engineer and project";
 
     // Define column names of the new sheet
     QStringList columnNamesSheet2 = {"Boom file Name", "Annual value", "Design Registration Project Name", "FAE Name", "Industry", "Design Registration Project id"};
@@ -700,12 +734,12 @@ void TaskProccessDocuments::process_stats(QList<QMap<QString, QList<QVariant>>>&
 
     // Init for to iterate the list of maps
     for (int indexMap = 0; indexMap < dataMapList.size(); ++indexMap) {
-            // Select the current map from the list
-            QMap<QString, QList<QVariant>> currentMap = dataMapList[indexMap];
-            QVariantList idList = currentMap["Design Registration Project id"]; // Variable to compare the project id to make the sum
-            QVariantList revenueList = currentMap["Annual value"]; // List to store the revenue sum
+        // Select the current map from the list
+        QMap<QString, QList<QVariant>> currentMap = dataMapList[indexMap];
+        QVariantList idList = currentMap["Design Registration Project id"]; // Variable to compare the project id to make the sum
+        QVariantList revenueList = currentMap["Annual value"]; // List to store the revenue sum
 
-            for (int indexBom = 0; indexBom < idList.size(); indexBom++) {
+        for (int indexBom = 0; indexBom < idList.size(); indexBom++) {
             QVariant id = idList[indexBom];
 
             if (idx != id) {
@@ -719,11 +753,11 @@ void TaskProccessDocuments::process_stats(QList<QMap<QString, QList<QVariant>>>&
                     // Check if the index is within the valid range
                     if (indexBom < dataCount) {
                         QVariant data = columnData[indexBom];
-                        qDebug() << "data = " << data;
+                        //                        qDebug() << "data = " << data;
                         document.write(rowIndex, column, data);
                         column++;
                     } else {
-                        qDebug() << "Error: Index out of range for column " << columnName;
+                        //                        qDebug() << "Error: Index out of range for column " << columnName;
                         // Handle the error appropriately, e.g., skip writing to the document or add a default value.
                     }
                 }
@@ -741,20 +775,12 @@ void TaskProccessDocuments::process_stats(QList<QMap<QString, QList<QVariant>>>&
             }
 
             idx = id;
-            }
+        }
 
-            rowIndex++;
-            rowList.append(rowIndex);
+        rowIndex++;
+        rowList.append(rowIndex);
     }
 }
 
 
-//    // Ejemplo de uso
-//    double excelSerialNumber = 44213.5; // Ejemplo de un número de serie de fecha de Excel
-
-//    // Convertir el número de serie a un objeto QDateTime
-//    QDateTime dateTime = excelSerialNumberToDateTime(excelSerialNumber);
-
-//    // Imprimir la fecha y hora en un formato legible
-//    qDebug() << "Fecha y Hora:" << dateTime.toString("dd/MM/yyyy hh:mm:ss");
 
