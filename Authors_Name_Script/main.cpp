@@ -5,6 +5,7 @@
 #include <QHostInfo>
 #include <QDirIterator>
 #include <QListWidgetItem>
+#include <QTextStream>
 
 
 
@@ -46,61 +47,146 @@ int main(int argc, char *argv[]) {
         qDebug() << file;
     }
 
-    // Get the PCname and user number
-    QString nombrePC = QHostInfo::localHostName();
+    //Start find the text file
+
+    QString textPathFile = dir.absolutePath() + "/username.txt";
 
 
-    // Toma los últimos 5 caracteres del nombre de la PC
-    QString username = nombrePC.right(5);
 
-    //    qDebug() << "Nombre de la PC: " << nombrePC;
-    //    qDebug() << "Últimos 5 caracteres del nombre de la PC: " << username;
+    QFile textFile(textPathFile);
+    QString userText;
 
-    foreach (QString const &excelPathfile, excelFiles) {
+    if (textFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QTextStream stream(&textFile);
+        while (!stream.atEnd()){
 
-        // Verify is the file exist
-        QFile file(excelPathfile);
-        if (file.exists()) {
+            userText.append(stream.readLine());
+        }
 
-            // Get the file info
-            QFileInfo fileInfo(excelPathfile);
-            QString rutaArchivo = fileInfo.absolutePath();
-            QString nombreBase = fileInfo.completeBaseName();
-            QString extension = fileInfo.suffix();
+    }
+    textFile.close();
 
-            if (nombreBase.contains(username)) {
-                // Remove the username from the file name
-                nombreBase.remove("_"+username);
+    qDebug() << "Text file path: " << textPathFile;
 
-                // Create the new file name without the username
-                QString nuevoNombreArchivo = QString("%1.%2").arg(nombreBase, extension);
+    qDebug() << "Text file: " << userText;
 
-                // Rename the file
-                QFile nuevoFile(rutaArchivo + "/" + nuevoNombreArchivo);
-                if (file.rename(nuevoFile.fileName())) {
-                    qDebug() << "The username has been removed from the file name. The file is now:" << nuevoFile.fileName();
-                } else {
-                    qDebug() << "Error renaming the file.";
+
+
+
+    if(!userText.isNull()){
+
+        qDebug() << "Text is: " << userText;
+
+        foreach (QString const &excelPathfile, excelFiles) {
+
+            // Verify is the file exist
+            QFile file(excelPathfile);
+            if (file.exists()) {
+
+                // Get the file info
+                QFileInfo fileInfo(excelPathfile);
+                QString rutaArchivo = fileInfo.absolutePath();
+                QString nombreBase = fileInfo.completeBaseName();
+                QString extension = fileInfo.suffix();
+
+                if (nombreBase.contains(userText)) {
+                    // Remove the username from the file name
+                    nombreBase.remove("_"+userText);
+
+                    // Create the new file name without the username
+                    QString nuevoNombreArchivo = QString("%1.%2").arg(nombreBase, extension);
+
+                    // Rename the file
+                    QFile nuevoFile(rutaArchivo + "/" + nuevoNombreArchivo);
+                    if (file.rename(nuevoFile.fileName())) {
+                        qDebug() << "The username has been removed from the file name. The file is now:" << nuevoFile.fileName();
+                    } else {
+                        qDebug() << "Error renaming the file.";
+                    }
+                } else if(nombreBase.right(5) != userText){
+                    // Create the new number with the username
+                    QString nuevoNombreArchivo = QString("%1_%2.%3").arg(nombreBase, userText, extension);
+
+                    // Renombra el archivo
+                    QFile nuevoFile(rutaArchivo + "/" + nuevoNombreArchivo);
+                    if (file.rename(nuevoFile.fileName())) {
+                        qDebug() << "El archivo se ha renombrado exitosamente a:" << nuevoFile.fileName();
+                    } else {
+                        qDebug() << "Error al renombrar el archivo.";
+                    }
+
                 }
-            } else if(nombreBase.right(5) != username){
-                // Create the new number with the username
-                QString nuevoNombreArchivo = QString("%1_%2.%3").arg(nombreBase, username, extension);
 
-                // Renombra el archivo
-                QFile nuevoFile(rutaArchivo + "/" + nuevoNombreArchivo);
-                if (file.rename(nuevoFile.fileName())) {
-                    qDebug() << "El archivo se ha renombrado exitosamente a:" << nuevoFile.fileName();
-                } else {
-                    qDebug() << "Error al renombrar el archivo.";
-                }
+//                if(openConsole == false){a.exit();}
+//                else{return a.exec();}
+
+
 
             }
+        }
 
-            if(openConsole == false){a.exit();}
-            else{return a.exec();}
+    }
+
+
+    else{
+        // if there are not text file use the computer name
+
+        // Get the PCname and user number
+        QString nombrePC = QHostInfo::localHostName();
+
+
+        // Toma los últimos 5 caracteres del nombre de la PC
+        QString username = nombrePC.right(5);
+
+        //    qDebug() << "Nombre de la PC: " << nombrePC;
+        //    qDebug() << "Últimos 5 caracteres del nombre de la PC: " << username;
+
+        foreach (QString const &excelPathfile, excelFiles) {
+
+            // Verify is the file exist
+            QFile file(excelPathfile);
+            if (file.exists()) {
+
+                // Get the file info
+                QFileInfo fileInfo(excelPathfile);
+                QString rutaArchivo = fileInfo.absolutePath();
+                QString nombreBase = fileInfo.completeBaseName();
+                QString extension = fileInfo.suffix();
+
+                if (nombreBase.contains(username)) {
+                    // Remove the username from the file name
+                    nombreBase.remove("_"+username);
+
+                    // Create the new file name without the username
+                    QString nuevoNombreArchivo = QString("%1.%2").arg(nombreBase, extension);
+
+                    // Rename the file
+                    QFile nuevoFile(rutaArchivo + "/" + nuevoNombreArchivo);
+                    if (file.rename(nuevoFile.fileName())) {
+                        qDebug() << "The username has been removed from the file name. The file is now:" << nuevoFile.fileName();
+                    } else {
+                        qDebug() << "Error renaming the file.";
+                    }
+                } else if(nombreBase.right(5) != username){
+                    // Create the new number with the username
+                    QString nuevoNombreArchivo = QString("%1_%2.%3").arg(nombreBase, username, extension);
+
+                    // Renombra el archivo
+                    QFile nuevoFile(rutaArchivo + "/" + nuevoNombreArchivo);
+                    if (file.rename(nuevoFile.fileName())) {
+                        qDebug() << "El archivo se ha renombrado exitosamente a:" << nuevoFile.fileName();
+                    } else {
+                        qDebug() << "Error al renombrar el archivo.";
+                    }
+
+                }
+
+//                if(openConsole == false){a.exit();}
+//                else{return a.exec();}
 
 
 
+            }
         }
     }
 }

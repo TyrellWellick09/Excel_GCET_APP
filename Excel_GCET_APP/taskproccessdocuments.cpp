@@ -543,12 +543,14 @@ void TaskProccessDocuments::run(){
                     QList<QVariant> columnData = currentMap[columnName];
 
                     // Realiza la conversión de fechas si la columna se llama "approved date"
-                    if ((columnName == "Approved Date") || (columnName == "Design Registration Win/Winbuy Date") || (columnName == "Date Design Registration Submitted") ) {
+                    if ((columnName == "Approved Date") || (columnName == "Design Registration Win/Winbuy Date") || (columnName == "Date Design Registration Submitted" || (columnName == "D Created on")) ) {
                         for (int dataRowIndex = 0; dataRowIndex < columnData.size(); ++dataRowIndex) {
-                            QVariant data = columnData[dataRowIndex];
-                            if(!data.isNull()){
+
+                            //QDate dateModify = typeOfDate();
+                            //QVariant data = columnData[dataRowIndex];
+                            if(!columnData[dataRowIndex].isNull()){
                                 //                                qDebug() << "Date : " << data;
-                                process_date(data, init_date, end_date);
+                                columnData[dataRowIndex] = typeOfDate(columnData[dataRowIndex]);
 
                             }
                         }

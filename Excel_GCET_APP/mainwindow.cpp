@@ -373,7 +373,7 @@ void MainWindow::update_projects_ID(QList<QVariant> booms_columnsID){
 
             QString project = variant.toString();
 
-            if(!projects_ID.contains(project)){
+            if(!projects_ID.contains(project) && project != "0"){
                 projects_ID.append(project);
             }
 

@@ -22,6 +22,7 @@ QDate typeOfDate(const QVariant& valor) {
         qDebug() << "Fecha en formato número: " << doubleValue;
 
                     QDate dateCreated = excelSerialNumberToDate(doubleValue);
+                    qDebug() << "Fecha transformada: " << dateCreated;
 
         return dateCreated;
     }

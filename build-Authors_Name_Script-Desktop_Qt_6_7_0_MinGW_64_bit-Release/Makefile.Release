@@ -343,7 +343,8 @@ release/main.o: ../Authors_Name_Script/main.cpp ../../../Qt/6.7.0/mingw_64/inclu
 		../../../Qt/6.7.0/mingw_64/include/QtWidgets/qstyle.h \
 		../../../Qt/6.7.0/mingw_64/include/QtWidgets/qtabbar.h \
 		../../../Qt/6.7.0/mingw_64/include/QtWidgets/qtabwidget.h \
-		../../../Qt/6.7.0/mingw_64/include/QtWidgets/qrubberband.h
+		../../../Qt/6.7.0/mingw_64/include/QtWidgets/qrubberband.h \
+		../../../Qt/6.7.0/mingw_64/include/QtCore/QTextStream
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\main.o ..\Authors_Name_Script\main.cpp
 
 ####### Install

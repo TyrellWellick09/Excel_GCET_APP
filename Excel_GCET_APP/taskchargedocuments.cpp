@@ -179,7 +179,7 @@ void TaskChargeDocuments::run()
                             }
                         }
 
-
+                        qDebug() << "list of projects id: " << booms_columnData;
 
                         QMetaObject::invokeMethod(mainWindow, "update_projects_ID", Qt::QueuedConnection,
                                                   Q_ARG(QList<QVariant>, booms_columnData));
