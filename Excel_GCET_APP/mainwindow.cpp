@@ -43,11 +43,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->exportID->setVisible(false);
 
+    // Supongamos que tienes un botón llamado buttonSearchFiles en tu interfaz gráfica
+    connect(ui->button_clean, SIGNAL(clicked()), this, SLOT(searchFilesLogic()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+
 }
 
 
@@ -225,7 +228,11 @@ void MainWindow::on_button_clean_clicked()
 
 }
 
-
+void button_clean(){
+    // logic
+    function1();
+    function2();
+}
 
 
 QStringList MainWindow::open_excel_files()
@@ -391,3 +398,6 @@ void MainWindow::update_statusBar(QString message, int time){
     ui->statusBar->showMessage(message, time);
 
 }
+
+
+

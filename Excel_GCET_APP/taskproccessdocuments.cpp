@@ -549,9 +549,15 @@ void TaskProccessDocuments::run(){
                             //QDate dateModify = typeOfDate();
                             //QVariant data = columnData[dataRowIndex];
                             if(!columnData[dataRowIndex].isNull()){
-                                //                                qDebug() << "Date : " << data;
-                                columnData[dataRowIndex] = typeOfDate(columnData[dataRowIndex]);
 
+                                QDate changeDate = typeOfDate(columnData[dataRowIndex]);
+
+                                if(changeDate.isValid()){
+
+                                    columnData[dataRowIndex] = changeDate;
+                                } else {
+                                    columnData[dataRowIndex] = "-";
+                                }
                             }
                         }
                     }
@@ -694,7 +700,7 @@ void TaskProccessDocuments::process_date(QVariant drms_date, QVariant &init_date
 
     if (date_converter.isValid()) {
         // Calcular la diferencia en días
-        int diference_days = startDate.daysTo(date_converter);
+        //int diference_days = startDate.daysTo(date_converter);
         //        qDebug() << "Número de días desde la fecha inicial:" << diference_days;
 
         if(init_date == ""){
